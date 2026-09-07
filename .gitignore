@@ -32,6 +32,12 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
+.firebase-*.json
+firebase-debug.log*
+firestore-debug.log*
+database-debug.log*
+ui-debug.log*
 
 # typescript
 *.tsbuildinfo
