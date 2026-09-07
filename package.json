@@ -12,6 +12,7 @@
     "expo-image-picker": "~57.0.16",
     "expo-location": "~57.0.16",
     "expo-status-bar": "~57.0.1",
+    "firebase": "^12.18.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.87.0",
@@ -23,14 +24,22 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "@playwright/test": "^1.63.0",
     "@types/react": "~19.2.2",
+    "prettier": "^3.9.6",
     "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit",
+    "build:web": "expo export --platform web",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:e2e": "playwright test"
   },
   "private": true
 }
