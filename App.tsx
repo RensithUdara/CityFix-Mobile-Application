@@ -7,7 +7,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <StatusBar style="dark" />
-      <FirebaseProvider><AppNavigator /></FirebaseProvider>
+      <FirebaseProvider>
+        <AppNavigator />
+      </FirebaseProvider>
     </SafeAreaProvider>
   );
 }
