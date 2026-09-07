@@ -20,6 +20,23 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "scheme": "cityfix",
+    "plugins": [
+      [
+        "expo-image-picker",
+        {
+          "cameraPermission": "Allow CityFix to photograph local issues.",
+          "photosPermission": "Allow CityFix to attach photos to your reports.",
+          "microphonePermission": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Allow CityFix to locate the issue you are reporting."
+        }
+      ]
+    ]
   }
 }
