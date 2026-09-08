@@ -14,6 +14,7 @@ import { StatusBadge } from '../components/issues/StatusBadge';
 import { Icon } from '../components/ui/Icon';
 import { colors } from '../theme';
 import { relativeDate } from '../utils/format';
+import { reportReference } from '../utils/reference';
 export function IssueDetailsScreen({
   route,
 }: NativeStackScreenProps<RootStackParams, 'IssueDetails'>) {
@@ -93,7 +94,7 @@ export function IssueDetailsScreen({
             </View>
           </View>
           <Text selectable style={styles.muted}>
-            Report ID: {issue.id}
+            Reference: {reportReference(issue.id)}
           </Text>
         </View>
         <View style={styles.card}>
