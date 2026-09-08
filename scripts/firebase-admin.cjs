@@ -64,9 +64,21 @@ async function main() {
         },
       },
     });
-    for (const row of reports)
-      if (row.document)
+    for (const row of reports) {
+      if (row.document) {
+        const comments = await request(
+          `https://firestore.googleapis.com/v1/${row.document.name}/comments`,
+        );
+        for (const comment of comments.documents || [])
+          await request(`https://firestore.googleapis.com/v1/${comment.name}`, 'DELETE');
         await request(`https://firestore.googleapis.com/v1/${row.document.name}`, 'DELETE');
+      }
+    }
+    for (const collection of ['preferences', 'supportRequests']) {
+      const items = await request(`${base}/users/${manifest.uid}/${collection}`);
+      for (const item of items.documents || [])
+        await request(`https://firestore.googleapis.com/v1/${item.name}`, 'DELETE');
+    }
     const follows = await request(`${base}/users/${manifest.uid}/follows`);
     for (const document of follows.documents || [])
       await request(`https://firestore.googleapis.com/v1/${document.name}`, 'DELETE');
