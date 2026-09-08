@@ -1,7 +1,8 @@
-import { test, expect } from '@playwright/test';
+import { test, expect as baseExpect } from '@playwright/test';
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
+const expect = baseExpect.configure({ timeout: 15000 });
 
 test('live Firebase signup, profile, photo upload, report, realtime, follow, persistence and logout', async ({
   page,
@@ -55,6 +56,9 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await (await chooser).setFiles({ name: 'mobile-photo.png', mimeType: '', buffer: readFileSync('assets/icon.png') });
     await expect(page.getByText('1 / 5 photos', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Submit report', exact: true }).click();
+    await expect(page.getByText('Report submitted!', { exact: true })).toBeVisible({ timeout: 60000 });
+    await expect(page.getByText(/^CF-/)).toBeVisible();
+    await page.getByRole('button', { name: 'View my report', exact: true }).click();
     await page.waitForURL(/\/issue\//);
     resources.issueId = page.url().split('/issue/')[1];
     record();
@@ -97,6 +101,8 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await page.goto('/settings', { waitUntil: 'domcontentloaded' });
     await page.getByRole('switch', { name: 'Follow my new reports', exact: true }).check();
     await page.getByRole('button', { name: 'Default severity High', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Default severity High', exact: true })).toHaveAttribute('aria-selected', 'true');
+    await expect(page.getByRole('button', { name: 'Default severity High', exact: true })).toBeEnabled();
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('switch', { name: 'Follow my new reports', exact: true })).toBeChecked();
     await expect(page.getByRole('button', { name: 'Default severity High', exact: true })).toHaveAttribute('aria-selected', 'true');
@@ -106,6 +112,10 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await page.getByRole('textbox', { name: 'Issue title', exact: true }).fill('Five photo integration verification');
     await page.getByRole('textbox', { name: 'What’s happening?', exact: true }).fill('Temporary five photo report, removed after testing finishes.');
     await page.getByRole('textbox', { name: 'Location', exact: true }).fill('Automated test location');
+    await page.context().grantPermissions(['geolocation']);
+    await page.context().setGeolocation({ latitude: 6.12653, longitude: 80.12819 });
+    await page.getByRole('button', { name: 'Use my current location', exact: true }).click();
+    await expect(page.getByText('GPS coordinates attached.', { exact: true })).toBeVisible();
     const fiveChooser = page.waitForEvent('filechooser');
     await page.getByRole('button', { name: 'Upload photos', exact: true }).click();
     await (await fiveChooser).setFiles(Array.from({ length: 5 }, (_, i) => ({ name: `photo-${i}.png`, mimeType: 'image/png', buffer: readFileSync(i === 4 ? 'assets/cityfix-logo.png' : 'assets/icon.png') })));
@@ -120,6 +130,9 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await expect(page.getByText('5 / 5 photos', { exact: true })).toBeVisible();
     await page.screenshot({ path: 'test-results/report-photos.png', fullPage: true });
     await page.getByRole('button', { name: 'Submit report', exact: true }).click();
+    await expect(page.getByText('Report submitted!', { exact: true })).toBeVisible({ timeout: 60000 });
+    await expect(page.getByText(/^CF-/)).toBeVisible();
+    await page.getByRole('button', { name: 'View my report', exact: true }).click();
     await page.waitForURL(/\/issue\//, { timeout: 60000 });
     await expect(page.getByRole('button', { name: 'Following issue · Tap to unfollow' })).toBeVisible();
     await page.getByRole('button', { name: 'View photo 5', exact: true }).click();
@@ -129,6 +142,14 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await expect(page.getByText('Photo 1 of 5', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Close photo viewer' }).click();
     await page.screenshot({ path: 'test-results/issue-details.png', fullPage: true });
+    await page.goto('/map', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByLabel('Community issue map', { exact: true })).toBeVisible();
+    await page.getByRole('textbox', { name: 'Search the map', exact: true }).fill('Five photo integration');
+    await expect(page.getByRole('button', { name: 'View issue', exact: true })).toBeVisible();
+    await expect(page.locator('.leaflet-interactive')).toHaveCount(1);
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.screenshot({ path: 'test-results/map-phone.png', fullPage: true });
+    await page.setViewportSize({ width: 1280, height: 1000 });
     await page.goto('/help', { waitUntil: 'domcontentloaded' });
     await page.getByRole('textbox', { name: 'Subject', exact: true }).fill('Integration support question');
     await page.getByRole('textbox', { name: 'Your message', exact: true }).fill('Temporary support request for integration verification.');
@@ -146,7 +167,7 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await expect(page.getByRole('textbox', { name: 'Neighborhood', exact: true })).toHaveValue(
       'Integration test neighborhood',
     );
-    await page.getByRole('button', { name: 'Sign out', exact: true }).click();
+    await page.getByRole('button', { name: 'Log out', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible();
     expect(errors).toEqual([]);
   } finally {
