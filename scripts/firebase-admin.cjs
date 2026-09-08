@@ -14,6 +14,7 @@ async function main() {
   const token = await auth.getAccessToken(account.tokens.refresh_token, [
     'https://www.googleapis.com/auth/cloud-platform',
     'https://www.googleapis.com/auth/firebase',
+    'https://www.googleapis.com/auth/userinfo.email',
   ]);
   async function request(url, method = 'GET', body) {
     const response = await fetch(url, {
@@ -27,27 +28,70 @@ async function main() {
     const raw = await response.text();
     const data = raw ? JSON.parse(raw) : {};
     if (!response.ok)
-      throw new Error(`${response.status}: ${data.error?.message || 'Request failed'}`);
+      throw new Error(
+        `${response.status} ${new URL(url).hostname}: ${data.error?.message || (typeof data.error === 'string' ? data.error : 'Request failed')}`,
+      );
     return data;
   }
   const action = process.argv[2];
   if (action === 'cleanup-test') {
-    const manifest = JSON.parse(fs.readFileSync('test-results/firebase-test-resources.json', 'utf8'));
-    if (manifest.project !== project || !/^cityfix-e2e-\d+@example.com$/.test(manifest.email) || !/^[A-Za-z0-9]+$/.test(manifest.uid)) throw new Error('Invalid test cleanup manifest.');
-    const account = await request(`https://identitytoolkit.googleapis.com/v1/projects/${project}/accounts:lookup`, 'POST', { localId: [manifest.uid] });
-    if (account.users?.[0]?.email !== manifest.email) throw new Error('Test user identity does not match.');
+    const manifest = JSON.parse(
+      fs.readFileSync('test-results/firebase-test-resources.json', 'utf8'),
+    );
+    if (
+      manifest.project !== project ||
+      !/^cityfix-e2e-\d+@example.com$/.test(manifest.email) ||
+      !/^[A-Za-z0-9]+$/.test(manifest.uid)
+    )
+      throw new Error('Invalid test cleanup manifest.');
+    const account = await request(
+      `https://identitytoolkit.googleapis.com/v1/projects/${project}/accounts:lookup`,
+      'POST',
+      { localId: [manifest.uid] },
+    );
+    if (account.users?.[0]?.email !== manifest.email)
+      throw new Error('Test user identity does not match.');
     const base = `https://firestore.googleapis.com/v1/projects/${project}/databases/(default)/documents`;
-    const reports = await request(`${base}:runQuery`, 'POST', { structuredQuery: { from: [{ collectionId: 'issues' }], where: { fieldFilter: { field: { fieldPath: 'ownerId' }, op: 'EQUAL', value: { stringValue: manifest.uid } } } } });
-    for (const row of reports) if (row.document) await request(`https://firestore.googleapis.com/v1/${row.document.name}`, 'DELETE');
+    const reports = await request(`${base}:runQuery`, 'POST', {
+      structuredQuery: {
+        from: [{ collectionId: 'issues' }],
+        where: {
+          fieldFilter: {
+            field: { fieldPath: 'ownerId' },
+            op: 'EQUAL',
+            value: { stringValue: manifest.uid },
+          },
+        },
+      },
+    });
+    for (const row of reports)
+      if (row.document)
+        await request(`https://firestore.googleapis.com/v1/${row.document.name}`, 'DELETE');
     const follows = await request(`${base}/users/${manifest.uid}/follows`);
-    for (const document of follows.documents || []) await request(`https://firestore.googleapis.com/v1/${document.name}`, 'DELETE');
+    for (const document of follows.documents || [])
+      await request(`https://firestore.googleapis.com/v1/${document.name}`, 'DELETE');
     await request(`${base}/users/${manifest.uid}`, 'DELETE');
     const bucket = `${project}.firebasestorage.app`;
     const prefix = `issues/${manifest.uid}/`;
-    const photos = await request(`https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${encodeURIComponent(prefix)}`);
-    for (const item of photos.items || []) { if (!item.name.startsWith(prefix)) throw new Error('Unexpected storage path.'); await request(`https://storage.googleapis.com/storage/v1/b/${bucket}/o/${encodeURIComponent(item.name)}`, 'DELETE'); }
-    await request(`https://${project}-default-rtdb.asia-southeast1.firebasedatabase.app/presence/${manifest.uid}.json`, 'DELETE');
-    await request(`https://identitytoolkit.googleapis.com/v1/projects/${project}/accounts:delete`, 'POST', { localId: manifest.uid });
+    const photos = await request(
+      `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${encodeURIComponent(prefix)}`,
+    );
+    for (const item of photos.items || []) {
+      if (!item.name.startsWith(prefix)) throw new Error('Unexpected storage path.');
+      await request(
+        `https://storage.googleapis.com/storage/v1/b/${bucket}/o/${encodeURIComponent(item.name)}`,
+        'DELETE',
+      );
+    }
+    await request(
+      `https://${project}-default-rtdb.asia-southeast1.firebasedatabase.app/presence/${manifest.uid}.json`,
+      'DELETE',
+    );
+    await request(
+      `https://identitytoolkit.googleapis.com/v1/projects/${project}/accounts:delete`,
+      'POST',
+      { localId: manifest.uid },
+    );
     console.log('Temporary integration account, reports, photos, follows, and presence removed.');
   } else if (action === 'status') {
     for (const [label, url] of Object.entries({
@@ -62,7 +106,11 @@ async function main() {
         console.log(
           label,
           JSON.stringify(
-            label === 'auth' ? { email: data.signIn?.email, type: data.subtype } : label === 'service' ? { state: data.state } : data,
+            label === 'auth'
+              ? { email: data.signIn?.email, type: data.subtype }
+              : label === 'service'
+                ? { state: data.state }
+                : data,
           ),
         );
       } catch (error) {
