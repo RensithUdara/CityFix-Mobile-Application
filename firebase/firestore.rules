@@ -4,6 +4,11 @@ service cloud.firestore {
     function signedIn() { return request.auth != null; }
     function owner(uid) { return signedIn() && request.auth.uid == uid; }
     function admin() { return signedIn() && request.auth.token.admin == true; }
+    function validPhoto(photos, index, issueId) {
+      return photos.size() <= index || (photos[index].keys().hasOnly(['url', 'path'])
+        && photos[index].url is string && photos[index].url.matches('https://firebasestorage.googleapis.com/.*')
+        && photos[index].path == 'issues/' + request.auth.uid + '/' + issueId + '/photo-' + string(index) + '.jpg');
+    }
     match /users/{uid} {
       allow read: if owner(uid);
       allow create, update: if owner(uid)
@@ -12,14 +17,26 @@ service cloud.firestore {
         && request.resource.data.neighborhood is string && request.resource.data.neighborhood.size() <= 160;
       match /follows/{issueId} {
         allow read, delete: if owner(uid);
-        allow create: if owner(uid) && exists(/databases/$(database)/documents/issues/$(issueId))
+        allow create: if owner(uid) && existsAfter(/databases/$(database)/documents/issues/$(issueId))
           && request.resource.data.keys().hasOnly(['createdAt']) && request.resource.data.createdAt == request.time;
+      }
+      match /preferences/app {
+        allow read: if owner(uid);
+        allow create, update: if owner(uid) && request.resource.data.keys().hasOnly(['autoFollow', 'showResolved', 'defaultSeverity'])
+          && request.resource.data.autoFollow is bool && request.resource.data.showResolved is bool && request.resource.data.defaultSeverity in ['Low', 'Medium', 'High'];
+      }
+      match /supportRequests/{id} {
+        allow read: if owner(uid);
+        allow create: if owner(uid) && request.resource.data.keys().hasOnly(['subject', 'message', 'createdAt', 'status'])
+          && request.resource.data.subject is string && request.resource.data.subject.size() >= 3 && request.resource.data.subject.size() <= 100
+          && request.resource.data.message is string && request.resource.data.message.size() >= 10 && request.resource.data.message.size() <= 3000
+          && request.resource.data.status == 'Received' && request.resource.data.createdAt == request.time;
       }
     }
     match /issues/{issueId} {
       allow read: if signedIn();
       allow create: if signedIn()
-        && request.resource.data.keys().hasOnly(['title', 'description', 'category', 'severity', 'address', 'latitude', 'longitude', 'image', 'imagePath', 'ownerId', 'status', 'confirmedBy', 'createdAt', 'updatedAt'])
+        && request.resource.data.keys().hasOnly(['title', 'description', 'category', 'severity', 'address', 'latitude', 'longitude', 'image', 'imagePath', 'photos', 'ownerId', 'status', 'confirmedBy', 'createdAt', 'updatedAt'])
         && request.resource.data.ownerId == request.auth.uid
         && request.resource.data.title is string && request.resource.data.title.size() >= 5 && request.resource.data.title.size() <= 90
         && request.resource.data.description is string && request.resource.data.description.size() >= 15 && request.resource.data.description.size() <= 5000
@@ -31,8 +48,10 @@ service cloud.firestore {
         && request.resource.data.createdAt == request.time && request.resource.data.updatedAt == request.time
         && ((request.resource.data.latitude == null && request.resource.data.longitude == null) ||
           (request.resource.data.latitude is number && request.resource.data.latitude >= -90 && request.resource.data.latitude <= 90 && request.resource.data.longitude is number && request.resource.data.longitude >= -180 && request.resource.data.longitude <= 180))
-        && ((request.resource.data.image == null && request.resource.data.imagePath == null) ||
-          (request.resource.data.image is string && request.resource.data.image.matches('https://firebasestorage.googleapis.com/.*') && request.resource.data.imagePath == 'issues/' + request.auth.uid + '/' + issueId + '/photo'));
+        && request.resource.data.photos is list && request.resource.data.photos.size() >= 1 && request.resource.data.photos.size() <= 5
+        && validPhoto(request.resource.data.photos, 0, issueId) && validPhoto(request.resource.data.photos, 1, issueId)
+        && validPhoto(request.resource.data.photos, 2, issueId) && validPhoto(request.resource.data.photos, 3, issueId) && validPhoto(request.resource.data.photos, 4, issueId)
+        && request.resource.data.image == request.resource.data.photos[0].url && request.resource.data.imagePath == request.resource.data.photos[0].path;
       allow update: if signedIn() && (
         (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['confirmedBy'])
           && request.resource.data.confirmedBy is map
@@ -41,6 +60,15 @@ service cloud.firestore {
         || (admin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt'])
           && request.resource.data.status in ['Reported', 'In progress', 'Resolved'] && request.resource.data.updatedAt == request.time));
       allow delete: if admin();
+      match /comments/{commentId} {
+        allow read: if signedIn();
+        allow create: if signedIn() && exists(/databases/$(database)/documents/issues/$(issueId))
+          && request.resource.data.keys().hasOnly(['authorId', 'authorName', 'body', 'createdAt'])
+          && request.resource.data.authorId == request.auth.uid && request.resource.data.authorName is string && request.resource.data.authorName.size() <= 80
+          && request.resource.data.body is string && request.resource.data.body.size() >= 2 && request.resource.data.body.size() <= 1000
+          && request.resource.data.createdAt == request.time;
+        allow delete: if signedIn() && resource.data.authorId == request.auth.uid;
+      }
     }
   }
 }
