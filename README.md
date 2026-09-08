@@ -1,68 +1,95 @@
 # CityFix
 
-A thoughtfully designed neighborhood issue reporter built with Expo, React Native, and TypeScript. Ivory surfaces, forest-green accents, reusable components, and responsive phone, tablet, and web layouts.
+Expo SDK 57 + React Native + TypeScript community reporting app, connected to Firebase project **cityfix-community-20260908**.
 
 ## Run
 
 ```sh
 npm install
 npm start
-# Or open the browser preview
+# Browser
 npm run web
 ```
 
-Use an Expo Go version compatible with the installed Expo SDK, or a development build. Camera and GPS need device/browser permissions. Native Android map deployments require Google Maps credentials in the Expo configuration. Web maps use OpenStreetMap embeds and show the selected report; native maps show all filtered markers.
+The project's Firebase client configuration is in ignored `.env.local`. For a fresh checkout, copy `.env.example` to `.env.local` and enter the Web app configuration from Firebase Console. Client configuration is public app metadata, not a service-account key. Never put administrator credentials in Expo environment variables.
 
-## Features included
+[Open Firebase Console](https://console.firebase.google.com/project/cityfix-community-20260908/overview)
 
-- Nested stack and tab navigation with issue deep links (`cityfix://issue/CF-1024`).
-- Home with community metrics, category and status filters, debounced search, and responsive virtualized cards.
-- Map, reporting form, issue details, personal activity, sample profile, and followed-status screens.
-- React Hook Form validation, camera/library photo selection, and GPS capture.
-- Zustand state with AsyncStorage persistence for reports, follows, and confirmations.
-- Consistent buttons, inputs, empty states, badges, icons, spacing, and colors.
+## Implemented
+
+- Supplied CityFix logo in the splash screen, app icon, onboarding, sign-in, and home header.
+- Three onboarding pages with Back, Continue, Skip, page indicators, reduced-motion support, and persisted completion.
+- Firebase email/password registration, login, password reset, session restoration, and logout.
+- Firestore profiles, report submission, live issue listeners, transactional confirmations, and per-account follows.
+- Firebase Storage image uploads, size/type validation, and cleanup after failed submission.
+- Realtime Database per-session presence with disconnect cleanup and a connection indicator.
+- Camera/library selection, GPS, form validation, search, filters, native/web maps, and activity screens.
+- Deployed Firestore, Realtime Database, and Storage access rules.
+
+No sample reports, fictional accounts, fake counts, sample photos, or fallback city coordinates are loaded. Categories and onboarding copy remain product constants. A manually entered address is saved without a map pin unless GPS is attached.
 
 ## Folder structure
 
 ```text
-App.tsx                     Application providers
 src/
   components/
-    ui/                     Shared Button, Field, Icon, Screen, and headers
-    home/                   Header, illustrated hero, community statistics
-    issues/                 Issue cards, status badges, category filters
-    map/                    Platform-specific native and web maps
-  data/                     Clearly identified sample community reports
-  hooks/                    Reusable behavior such as debounced search
-  navigation/               Typed stack, tabs, and deep-link configuration
-  screens/                  Screen composition and screen-specific styles
-  services/                 Device API adapters for camera and location
-  store/                    Persistent application state and state actions
-  theme/                    Color, spacing, corner-radius, and shadow tokens
-  types/                    Issue domain types
-  utils/                    Pure formatting helpers
-docs/
-  ARCHITECTURE.md            Customization and backend integration plan
+    branding/      Shared supplied logo
+    onboarding/    Onboarding illustration component
+    ui/            Buttons, fields, screen shell, status/error UI
+    home/          Home header, hero, aggregate report counts
+    issues/        Cards, category filters, status badges
+    map/           Platform-specific maps
+  config/          Firebase initialization and platform auth persistence
+  data/            Onboarding product copy
+  hooks/           Debouncing and onboarding preferences
+  navigation/      Auth gate, onboarding gate, typed tabs/stack/deep links
+  providers/       Firebase auth/listener lifecycle
+  screens/         App screens
+  services/        Auth, reports/uploads, presence, device APIs
+  store/           In-memory live state; no demo seed or persisted issue cache
+  theme/           Shared design tokens
+  types/           Domain and native Firebase type declarations
+  utils/           Error messages, initials, date formatting
+firebase/          Security rules and indexes
+tests/             Browser and Firebase rules verification
+scripts/           Project administration and scoped live-test cleanup
 ```
 
-## Customize
+## Splash and onboarding
 
-Start with `src/theme/index.ts` for colors and design tokens. Change reusable widgets in `src/components/ui/`, screen sections in the component subfolders, and individual page compositions in `src/screens/`. Sample content is in `src/data/issues.ts`; clear the `cityfix-issues-v1` storage key to reload seed changes on a previously used device.
+The original image is stored at `assets/cityfix-logo.png`. Configure the native splash in `app.json` under `expo-splash-screen`. Create a new native build to apply icon/splash configuration. Expo Go does not reproduce the release splash exactly; verify a release build, as described in the [SDK 57 splash documentation](https://docs.expo.dev/versions/v57.0.0/sdk/splash-screen/).
 
-## Preview boundaries
-
-This is a functional local UI prototype, not a deployed civic reporting service. The profile is a sample identity. No Firebase authentication, remote API, uploads, push notifications, automatic offline sync, clustering, dark mode, or server pagination is implemented. Local reports are **not** delivered to authorities. Library/camera URIs are not permanent photo uploads; durable native media storage should be added before production. Map tiles and sample photos require internet. Manually entered addresses currently use a central Colombo fallback pin; GPS supplies actual coordinates.
-
-See `docs/ARCHITECTURE.md` for the extension plan. Device camera, GPS, and native map behavior require testing on Android/iOS hardware.
+Onboarding appears once per installation/browser storage. Clear the `cityfix-onboarding-complete-v1` AsyncStorage key to replay it. Signing out preserves this preference. Screen copy lives in `src/data/onboarding.ts`; the onboarding artwork lives separately in `src/components/onboarding/`.
 
 ## Validation
 
 ```sh
 npm run typecheck
-npm run build:web
 npm run format:check
-npx playwright install chromium
+npm run build:web
 npm run test:e2e
+npm run test:rules
 ```
 
-Platform integration references: [Expo ImagePicker](https://docs.expo.dev/versions/latest/sdk/imagepicker/) and [React Navigation setup](https://reactnavigation.org/docs/getting-started/).
+Rules tests use the local emulators with project `demo-cityfix` and require Java 21 and Firebase CLI. Install Chromium with `npx playwright install chromium` before browser tests.
+
+The live integration test is opt-in. In PowerShell:
+
+```powershell
+$env:CITYFIX_LIVE_TEST='1'
+npx playwright test tests/firebase-live.spec.ts --workers=1
+```
+
+It creates a temporary test account, uploads an image and report, verifies updates across two browser sessions, and deletes that account and its data. Cleanup uses the existing Firebase CLI login, checks the test email and UID, and is scoped to that identity. If interrupted, run `node scripts/firebase-admin.cjs cleanup-test` while the matching manifest remains in `test-results/`.
+
+## Deployment and limits
+
+```sh
+firebase deploy --only "firestore,database,storage" --project cityfix-community-20260908
+```
+
+The app uses real Firebase services. It is not connected to a municipal authority. Issue status can be updated by trusted administrators through Firebase Console/Admin SDK; ordinary users cannot change status. The updates screen displays live followed-issue statuses; background FCM push delivery is not implemented.
+
+The report feed currently subscribes to all reports. Large deployments should add geospatial querying and pagination. Durable offline submission queues, moderation UI, account deletion UI, and marker clustering are not implemented. Photo URLs are Firebase download-token URLs and should be treated as shareable links. Native camera, location, maps, and splash behavior still need device/release testing. Android native maps require a Google Maps API key in the deployment configuration.
+
+See [architecture](docs/ARCHITECTURE.md) for data responsibilities and security details.
