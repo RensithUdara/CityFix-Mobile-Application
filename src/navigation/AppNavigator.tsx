@@ -101,7 +101,14 @@ export function AppNavigator() {
             Report: 'report',
             IssueDetails: 'issue/:id',
             Notifications: 'notifications',
-            Auth: 'sign-in', Settings: 'settings', Security: 'security', FAQ: 'faq', Privacy: 'privacy', Guidelines: 'guidelines', About: 'about', HelpSupport: 'help',
+            Auth: 'sign-in',
+            Settings: 'settings',
+            Security: 'security',
+            FAQ: 'faq',
+            Privacy: 'privacy',
+            Guidelines: 'guidelines',
+            About: 'about',
+            HelpSupport: 'help',
           },
         },
       }}
@@ -114,30 +121,59 @@ export function AppNavigator() {
           headerTitleStyle: { fontSize: 16 },
         }}
       >
-        {user ? <><Stack.Screen name="Main" component={Tabs} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="Report"
-          component={ReportScreen}
-          options={{ title: 'Report an issue', presentation: 'modal' }}
-        />
-        <Stack.Screen
-          name="IssueDetails"
-          component={IssueDetailsScreen}
-          options={{ title: 'Community report' }}
-        />
-        <Stack.Screen
-          name="Notifications"
-          component={NotificationsScreen}
-          options={{ title: 'Community updates' }}
-        />
-        <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Settings' }} />
-        <Stack.Screen name="Security" component={SecurityScreen} options={{ title: 'Account security' }} />
-        <Stack.Screen name="HelpSupport" component={HelpSupportScreen} options={{ title: 'Help & feedback' }} />
-        </> : <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />}
+        {user ? (
+          <>
+            <Stack.Screen name="Main" component={Tabs} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="Report"
+              component={ReportScreen}
+              options={{ title: 'Report an issue', presentation: 'modal' }}
+            />
+            <Stack.Screen
+              name="IssueDetails"
+              component={IssueDetailsScreen}
+              options={{ title: 'Community report' }}
+            />
+            <Stack.Screen
+              name="Notifications"
+              component={NotificationsScreen}
+              options={{ title: 'Community updates' }}
+            />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{ title: 'Settings' }}
+            />
+            <Stack.Screen
+              name="Security"
+              component={SecurityScreen}
+              options={{ title: 'Account security' }}
+            />
+            <Stack.Screen
+              name="HelpSupport"
+              component={HelpSupportScreen}
+              options={{ title: 'Help & feedback' }}
+            />
+          </>
+        ) : (
+          <Stack.Screen name="Auth" component={AuthScreen} options={{ headerShown: false }} />
+        )}
         <Stack.Screen name="FAQ" component={FAQScreen} options={{ title: 'Help center' }} />
-        <Stack.Screen name="Privacy" component={InformationScreen} options={{ title: 'Privacy policy' }} />
-        <Stack.Screen name="Guidelines" component={InformationScreen} options={{ title: 'Community guidelines' }} />
-        <Stack.Screen name="About" component={InformationScreen} options={{ title: 'About CityFix' }} />
+        <Stack.Screen
+          name="Privacy"
+          component={InformationScreen}
+          options={{ title: 'Privacy policy' }}
+        />
+        <Stack.Screen
+          name="Guidelines"
+          component={InformationScreen}
+          options={{ title: 'Community guidelines' }}
+        />
+        <Stack.Screen
+          name="About"
+          component={InformationScreen}
+          options={{ title: 'About CityFix' }}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );
