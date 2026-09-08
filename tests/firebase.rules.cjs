@@ -18,7 +18,11 @@ before(async () => {
 after(async () => {
   await env?.cleanup();
 });
-function report(ownerId) {
+function report(ownerId, id = 'a', count = 1) {
+  const photos = Array.from({ length: count }, (_, index) => ({
+    url: `https://firebasestorage.googleapis.com/example/${id}/${index}`,
+    path: `issues/${ownerId}/${id}/photo-${index}.jpg`,
+  }));
   return {
     ownerId,
     title: 'Pavement needs repair',
@@ -28,8 +32,9 @@ function report(ownerId) {
     address: 'Library entrance',
     latitude: null,
     longitude: null,
-    image: null,
-    imagePath: null,
+    image: photos[0]?.url ?? null,
+    imagePath: photos[0]?.path ?? null,
+    photos,
     status: 'Reported',
     confirmedBy: {},
     createdAt: serverTimestamp(),
@@ -65,6 +70,45 @@ test('Firestore enforces ownership, profile isolation, confirmation integrity, a
       .update({ status: 'Resolved', updatedAt: serverTimestamp() }),
   );
 });
+test('Photo counts, private preferences/support, comments, and atomic auto-follow are enforced', async () => {
+  const alice = env.authenticatedContext('alice').firestore();
+  const bob = env.authenticatedContext('bob').firestore();
+  await assertFails(alice.doc('issues/empty').set(report('alice', 'empty', 0)));
+  await assertFails(alice.doc('issues/six').set(report('alice', 'six', 6)));
+  await assertSucceeds(alice.doc('issues/five').set(report('alice', 'five', 5)));
+  const wrongPath = report('alice', 'wrong');
+  wrongPath.photos[0].path = 'issues/bob/wrong/photo-0.jpg';
+  await assertFails(alice.doc('issues/wrong').set(wrongPath));
+  const batch = alice.batch();
+  batch.set(alice.doc('issues/auto'), report('alice', 'auto'));
+  batch.set(alice.doc('users/alice/follows/auto'), { createdAt: serverTimestamp() });
+  await assertSucceeds(batch.commit());
+  const preferences = { autoFollow: true, showResolved: false, defaultSeverity: 'High' };
+  await assertSucceeds(alice.doc('users/alice/preferences/app').set(preferences));
+  await assertFails(bob.doc('users/alice/preferences/app').get());
+  await assertFails(bob.doc('users/alice/preferences/app').set(preferences));
+  await assertFails(alice.doc('users/alice/preferences/app').update({ defaultSeverity: 'Urgent' }));
+  const support = {
+    subject: 'A question',
+    message: 'Please help me with this account.',
+    status: 'Received',
+    createdAt: serverTimestamp(),
+  };
+  await assertSucceeds(alice.doc('users/alice/supportRequests/a').set(support));
+  await assertFails(bob.doc('users/alice/supportRequests/a').get());
+  await assertFails(alice.doc('users/alice/supportRequests/b').set({ ...support, message: '' }));
+  const comment = {
+    authorId: 'alice',
+    authorName: 'Alice',
+    body: 'A helpful detail',
+    createdAt: serverTimestamp(),
+  };
+  await assertFails(bob.doc('issues/five/comments/a').set(comment));
+  await assertSucceeds(alice.doc('issues/five/comments/a').set(comment));
+  await assertSucceeds(bob.doc('issues/five/comments/a').get());
+  await assertFails(bob.doc('issues/five/comments/a').delete());
+  await assertSucceeds(alice.doc('issues/five/comments/a').delete());
+});
 test('Realtime Database restricts presence to the current user', async () => {
   const alice = env.authenticatedContext('alice').database();
   const bob = env.authenticatedContext('bob').database();
@@ -99,4 +143,10 @@ test('Storage rejects unauthenticated, cross-account, non-image, and oversized u
   await assertSucceeds(alice.ref('issues/alice/a/photo').put(bytes, { contentType: 'image/png' }));
   await assertSucceeds(bob.ref('issues/alice/a/photo').getMetadata());
   await assertFails(bob.ref('issues/alice/a/photo').delete());
+  await assertSucceeds(
+    alice.ref('issues/alice/five/photo-4.jpg').put(bytes, { contentType: 'image/jpeg' }),
+  );
+  await assertFails(
+    alice.ref('issues/alice/five/photo-5.jpg').put(bytes, { contentType: 'image/jpeg' }),
+  );
 });
