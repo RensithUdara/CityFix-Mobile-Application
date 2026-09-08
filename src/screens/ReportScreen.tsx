@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -14,6 +14,7 @@ import { Category, NewIssue } from '../types/issue';
 import { currentLocation, pickPhotos } from '../services/device';
 import { LocalPhoto, MAX_REPORT_PHOTOS } from '../types/photo';
 import { PhotoPicker } from '../components/issues/PhotoPicker';
+import { ReportSuccess } from '../components/issues/ReportSuccess';
 import { usePreferencesStore } from '../store/preferencesStore';
 import { errorMessage } from '../utils/errors';
 import { colors } from '../theme';
@@ -23,11 +24,15 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
     defaultValues: { title: '', description: '', address: '' },
   });
   const [category, setCategory] = useState<Category>('Roads');
+  const defaultSeverity = usePreferencesStore(s => s.defaultSeverity);
+  const [severityTouched, setSeverityTouched] = useState(false);
   const [severity, setSeverity] = useState<NewIssue['severity']>(
     usePreferencesStore.getState().defaultSeverity,
   );
   const [photos, setPhotos] = useState<LocalPhoto[]>([]);
+  useEffect(() => { if (!severityTouched) setSeverity(defaultSeverity); }, [defaultSeverity, severityTouched]);
   const [progress, setProgress] = useState('');
+  const [submittedId, setSubmittedId] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
   const [coords, setCoords] = useState<{ latitude: number | null; longitude: number | null }>({
     latitude: null,
@@ -87,7 +92,7 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
         },
         setProgress,
       );
-      navigation.replace('IssueDetails', { id });
+      setSubmittedId(id);
     } catch (error) {
       setError(errorMessage(error));
     } finally {
@@ -96,6 +101,7 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
   });
   return (
     <Screen>
+      <ReportSuccess id={submittedId} onView={() => { if (submittedId) navigation.replace('IssueDetails', { id: submittedId }); }} />
       <View style={{ maxWidth: 720, width: '100%', alignSelf: 'center', gap: 26 }}>
         <SectionHeader
           title="Let’s make it better."
@@ -163,7 +169,8 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
                 key={s}
                 accessibilityRole="button"
                 accessibilityState={{ selected: severity === s }}
-                onPress={() => setSeverity(s)}
+                aria-selected={severity === s}
+                onPress={() => { setSeverityTouched(true); setSeverity(s); }}
                 style={[
                   styles.severity,
                   severity === s && { borderColor: colors.primary, backgroundColor: colors.pale },
@@ -230,7 +237,7 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
           icon="plus-circle"
           label={submitting ? progress || 'Preparing photos…' : 'Submit report'}
           onPress={submit}
-          disabled={busy || submitting || picking}
+          disabled={busy || submitting || picking || !!submittedId}
         />
         <Text style={[styles.hint, { textAlign: 'center', lineHeight: 20 }]}>
           Reports are shared with the CityFix community.
