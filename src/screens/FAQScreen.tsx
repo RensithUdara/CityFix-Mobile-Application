@@ -40,6 +40,7 @@ export function FAQScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityState={{ expanded: open === item.question }}
+              aria-expanded={open === item.question}
               onPress={() => setOpen(open === item.question ? null : item.question)}
               style={{ padding: 20, flexDirection: 'row', gap: 12, alignItems: 'center' }}
             >
