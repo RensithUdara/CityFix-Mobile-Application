@@ -4,6 +4,140 @@ import { Button } from '../ui/Button';
 import { Icon } from '../ui/Icon';
 export function CommunityHero({ onReport }: { onReport: () => void }) {
   const wide = useWindowDimensions().width > 700;
-  return <View style={[styles.hero, { padding: wide ? 38 : 25 }]}><View style={{ flex: 1, gap: 16, zIndex: 1 }}><View style={styles.tag}><View style={styles.dot} /><Text style={styles.tagText}>SMALL ACTIONS. BETTER NEIGHBORHOODS.</Text></View><Text style={[styles.heading, { fontSize: wide ? 44 : 33 }]}>A better city{ '\n' }starts with <Text style={{ color: '#779855' }}>you.</Text></Text><Text style={styles.description}>See something that needs fixing?{ '\n' }Let’s make our neighborhood a little better, together.</Text><View style={{ alignSelf: 'flex-start', marginTop: 4 }}><Button label="Report an issue" icon="plus" onPress={onReport} /></View><View style={styles.people}><View style={{ flexDirection: 'row', paddingLeft: 5 }}>{['#C4D5B5', '#E8CBB3', '#C7D9DE'].map((c, i) => <View key={c} style={[styles.person, { backgroundColor: c }]}><Text style={{ fontSize: 10, fontWeight: '700', color: colors.ink }}>{['AK', 'SM', 'NR'][i]}</Text></View>)}</View><Text style={{ color: '#60725C', fontSize: 11 }}>Made better by people like you</Text></View></View>{wide && <View style={styles.city}><View style={styles.sun} /><View style={styles.hill} />{[90, 145, 110, 185, 130].map((height, i) => <View key={i} style={[styles.building, { height, left: i * 57 + 16, bottom: 48, backgroundColor: ['#ACC399', '#789773', '#C4D5AD', '#90AB84', '#B1C49D'][i] }]}>{Array.from({ length: 6 }, (_, j) => <View key={j} style={styles.window} />)}</View>)}<View style={styles.street} /><View style={styles.pin}><Icon name="map-pin" size={31} color="white" /></View><View style={styles.fixed}><Icon name="check-circle" color={colors.primary} size={18} /><Text style={{ color: colors.ink, fontSize: 12, fontWeight: '600' }}>A little care. A big difference.</Text></View></View>}</View>;
+  return (
+    <View style={[styles.hero, { padding: wide ? 38 : 25 }]}>
+      <View style={{ flex: 1, gap: 16, zIndex: 1 }}>
+        <View style={styles.tag}>
+          <View style={styles.dot} />
+          <Text style={styles.tagText}>SMALL ACTIONS. BETTER NEIGHBORHOODS.</Text>
+        </View>
+        <Text style={[styles.heading, { fontSize: wide ? 44 : 33 }]}>
+          A better city{'\n'}starts with <Text style={{ color: '#779855' }}>you.</Text>
+        </Text>
+        <Text style={styles.description}>
+          See something that needs fixing?{'\n'}Let’s make our neighborhood a little better,
+          together.
+        </Text>
+        <View style={{ alignSelf: 'flex-start', marginTop: 4 }}>
+          <Button label="Report an issue" icon="plus" onPress={onReport} />
+        </View>
+      </View>
+      {wide && (
+        <View style={styles.city}>
+          <View style={styles.sun} />
+          <View style={styles.hill} />
+          {[90, 145, 110, 185, 130].map((height, i) => (
+            <View
+              key={i}
+              style={[
+                styles.building,
+                {
+                  height,
+                  left: i * 57 + 16,
+                  bottom: 48,
+                  backgroundColor: ['#ACC399', '#789773', '#C4D5AD', '#90AB84', '#B1C49D'][i],
+                },
+              ]}
+            >
+              {Array.from({ length: 6 }, (_, j) => (
+                <View key={j} style={styles.window} />
+              ))}
+            </View>
+          ))}
+          <View style={styles.street} />
+          <View style={styles.pin}>
+            <Icon name="map-pin" size={31} color="white" />
+          </View>
+          <View style={styles.fixed}>
+            <Icon name="check-circle" color={colors.primary} size={18} />
+            <Text style={{ color: colors.ink, fontSize: 12, fontWeight: '600' }}>
+              A little care. A big difference.
+            </Text>
+          </View>
+        </View>
+      )}
+    </View>
+  );
 }
-const styles = StyleSheet.create({ hero: { backgroundColor: '#EBF0DF', borderRadius: 24, flexDirection: 'row', overflow: 'hidden', minHeight: 330 }, tag: { flexDirection: 'row', alignItems: 'center', gap: 7 }, dot: { width: 6, height: 6, backgroundColor: '#729755', borderRadius: 4 }, tagText: { fontSize: 8, fontWeight: '700', letterSpacing: 1.3, color: '#5C7850' }, heading: { fontWeight: '700', letterSpacing: -1.8, lineHeight: 49, color: colors.ink }, description: { color: '#74816A', fontSize: 13, lineHeight: 23 }, people: { flexDirection: 'row', gap: 9, alignItems: 'center', marginTop: 1 }, person: { width: 27, height: 27, borderRadius: 20, borderWidth: 2, borderColor: '#EBF0DF', marginLeft: -5, alignItems: 'center', justifyContent: 'center' }, city: { width: 345, alignSelf: 'stretch', position: 'relative', marginRight: 12 }, sun: { position: 'absolute', width: 85, height: 85, borderRadius: 60, backgroundColor: '#DFE7AE', top: 4, right: 35 }, hill: { position: 'absolute', width: 335, height: 220, borderRadius: 150, backgroundColor: '#DCE6CE', bottom: 12 }, building: { position: 'absolute', width: 52, borderTopLeftRadius: 5, borderTopRightRadius: 5, padding: 12, flexDirection: 'row', flexWrap: 'wrap', gap: 9 }, window: { width: 8, height: 12, backgroundColor: '#EFF3DE', borderRadius: 1 }, street: { position: 'absolute', height: 10, left: 0, right: 0, bottom: 40, backgroundColor: '#A4B893', borderRadius: 10 }, pin: { position: 'absolute', right: 105, top: 5, backgroundColor: colors.primary, padding: 16, borderRadius: 40, transform: [{ rotate: '8deg' }] }, fixed: { position: 'absolute', bottom: 0, right: 10, flexDirection: 'row', gap: 9, backgroundColor: 'white', borderRadius: 12, padding: 15 } });
+const styles = StyleSheet.create({
+  hero: {
+    backgroundColor: '#EBF0DF',
+    borderRadius: 24,
+    flexDirection: 'row',
+    overflow: 'hidden',
+    minHeight: 330,
+  },
+  tag: { flexDirection: 'row', alignItems: 'center', gap: 7 },
+  dot: { width: 6, height: 6, backgroundColor: '#729755', borderRadius: 4 },
+  tagText: { fontSize: 8, fontWeight: '700', letterSpacing: 1.3, color: '#5C7850' },
+  heading: { fontWeight: '700', letterSpacing: -1.8, lineHeight: 49, color: colors.ink },
+  description: { color: '#74816A', fontSize: 13, lineHeight: 23 },
+  people: { flexDirection: 'row', gap: 9, alignItems: 'center', marginTop: 1 },
+  person: {
+    width: 27,
+    height: 27,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: '#EBF0DF',
+    marginLeft: -5,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  city: { width: 345, alignSelf: 'stretch', position: 'relative', marginRight: 12 },
+  sun: {
+    position: 'absolute',
+    width: 85,
+    height: 85,
+    borderRadius: 60,
+    backgroundColor: '#DFE7AE',
+    top: 4,
+    right: 35,
+  },
+  hill: {
+    position: 'absolute',
+    width: 335,
+    height: 220,
+    borderRadius: 150,
+    backgroundColor: '#DCE6CE',
+    bottom: 12,
+  },
+  building: {
+    position: 'absolute',
+    width: 52,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    padding: 12,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 9,
+  },
+  window: { width: 8, height: 12, backgroundColor: '#EFF3DE', borderRadius: 1 },
+  street: {
+    position: 'absolute',
+    height: 10,
+    left: 0,
+    right: 0,
+    bottom: 40,
+    backgroundColor: '#A4B893',
+    borderRadius: 10,
+  },
+  pin: {
+    position: 'absolute',
+    right: 105,
+    top: 5,
+    backgroundColor: colors.primary,
+    padding: 16,
+    borderRadius: 40,
+    transform: [{ rotate: '8deg' }],
+  },
+  fixed: {
+    position: 'absolute',
+    bottom: 0,
+    right: 10,
+    flexDirection: 'row',
+    gap: 9,
+    backgroundColor: 'white',
+    borderRadius: 12,
+    padding: 15,
+  },
+});
