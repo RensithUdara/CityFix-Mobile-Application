@@ -15,3 +15,19 @@ test('authentication gate and form validation on phone', async ({ page }) => {
   await page.goto('/issue/missing', { waitUntil: 'domcontentloaded' });
   await expect(page.getByText('Welcome back, neighbor')).toBeVisible();
 });
+test('public help pages and searchable FAQ work on phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Skip onboarding' }).click();
+  await page.goto('/faq');
+  await page.getByRole('textbox', { name: 'Search questions', exact: true }).fill('How many photos');
+  await page.getByRole('button', { name: /How many photos can I add/ }).click();
+  await expect(page.getByText(/Add between one and five photos from your camera/)).toBeVisible();
+  await page.goto('/privacy');
+  await expect(page.getByText('Information you provide', { exact: true })).toBeVisible();
+  await page.goto('/guidelines');
+  await expect(page.getByText('Report what you can observe', { exact: true })).toBeVisible();
+  await page.goto('/about');
+  await expect(page.getByText('About CityFix', { exact: true }).first()).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
