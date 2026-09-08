@@ -8,13 +8,18 @@
 
 A cross-platform mobile application for community members to report local issues, collaborate on solutions, and improve their neighborhoods.
 
+<br/>
+
 [![Expo](https://img.shields.io/badge/Expo-57.0.20-000000?logo=expo&logoColor=white)](https://expo.dev)
 [![React Native](https://img.shields.io/badge/React%20Native-0.86.3-61DAFB?logo=react)](https://reactnative.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0.3-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org)
 [![Firebase](https://img.shields.io/badge/Firebase-12.18.0-FFA500?logo=firebase&logoColor=white)](https://firebase.google.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+[![GitHub](https://img.shields.io/badge/GitHub-CityFix-181717?logo=github)](https://github.com/RensithUdara/CityFix-Mobile-Application)
 
-[🌐 Website](#) • [📱 Download](#) • [📚 Docs](#documentation) • [🐛 Issues](https://github.com/yourorg/cityfix/issues)
+<br/>
+
+[🌐 Repository](https://github.com/RensithUdara/CityFix-Mobile-Application) • [📱 Download](#) • [📚 Docs](#documentation) • [🐛 Issues](https://github.com/RensithUdara/CityFix-Mobile-Application/issues)
 
 </div>
 
@@ -65,8 +70,8 @@ Before you begin, ensure you have the following installed:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourorg/cityfix.git
-   cd cityfix
+   git clone https://github.com/RensithUdara/CityFix-Mobile-Application.git
+   cd CityFix-Mobile-Application
    ```
 
 2. **Install dependencies**
@@ -545,8 +550,8 @@ expo start --clear
 ### Getting Help
 
 - 📖 Check [ARCHITECTURE.md](./docs/ARCHITECTURE.md)
-- 🔍 Search existing [GitHub Issues](https://github.com/yourorg/cityfix/issues)
-- 💬 Open a new issue with:
+- 🔍 Search existing [GitHub Issues](https://github.com/RensithUdara/CityFix-Mobile-Application/issues)
+- 💬 Open a new [new issue](https://github.com/RensithUdara/CityFix-Mobile-Application/issues/new) with:
   - Platform (iOS/Android/Web)
   - Steps to reproduce
   - Error messages/logs
@@ -586,6 +591,12 @@ Fixes #issue_number
 ```
 
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+
+### Getting Started with Contributions
+1. Fork: [github.com/RensithUdara/CityFix-Mobile-Application](https://github.com/RensithUdara/CityFix-Mobile-Application/fork)
+2. Clone your fork
+3. Create feature branch
+4. Push and submit PR
 
 ---
 
@@ -647,10 +658,10 @@ We welcome contributions from the community! See [CONTRIBUTING.md](#contributing
 ## 📞 Support & Contact
 
 ### Get Help
-- 📧 **Email**: support@cityfix.community
-- 💬 **Discord**: [Join our community server](#)
-- 🐦 **Twitter**: [@cityfixapp](#)
-- 📱 **In-App Support**: Settings → Help & Support
+- 📧 **Email**: support@cityfix.communityRensithUdara/CityFix-Mobile-Application/issues/new)
+
+### Feature Requests
+Have an idea? Share it via [GitHub Discussions](https://github.com/RensithUdara/CityFix-Mobile-Application/discussions) or [create a feature request](https://github.com/RensithUdara/CityFix-Mobile-Application/issues/new
 
 ### Report a Bug
 Found a bug? Please create an [issue on GitHub](https://github.com/yourorg/cityfix/issues/new?template=bug_report.md)
