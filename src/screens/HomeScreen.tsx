@@ -23,6 +23,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { Icon } from '../components/ui/Icon';
 import { useIssueStore } from '../store/issueStore';
 import { usePreferencesStore } from '../store/preferencesStore';
+import { reportReference } from '../utils/reference';
 import { useDebouncedValue } from '../hooks/useDebouncedValue';
 import { colors } from '../theme';
 export function HomeScreen() {
@@ -42,7 +43,7 @@ export function HomeScreen() {
       (showResolved || status === 'Resolved' || i.status !== 'Resolved') &&
       (category === 'All issues' || i.category === category) &&
       (status === 'All statuses' || i.status === status) &&
-      `${i.title} ${i.address}`.toLowerCase().includes(query),
+      `${i.title} ${i.address} ${reportReference(i.id)}`.toLowerCase().includes(query),
   );
   return (
     <Screen scroll={false}>
