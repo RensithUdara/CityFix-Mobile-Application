@@ -8,6 +8,7 @@ import { savePreferences } from '../services/preferences';
 import { Screen } from '../components/ui/Screen';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { SettingsRow } from '../components/settings/SettingsRow';
+import { LogoutButton } from '../components/settings/LogoutButton';
 import { colors } from '../theme';
 import { errorMessage } from '../utils/errors';
 export function SettingsScreen({
@@ -90,6 +91,7 @@ export function SettingsScreen({
                   accessibilityRole="button"
                   accessibilityLabel={`Default severity ${value}`}
                   accessibilityState={{ selected: preferences.defaultSeverity === value }}
+                  aria-selected={preferences.defaultSeverity === value}
                   disabled={busy}
                   onPress={() => change({ defaultSeverity: value })}
                   style={{
@@ -119,6 +121,7 @@ export function SettingsScreen({
           </Text>
         )}
         <SectionHeader title="Account & support" />
+        <LogoutButton />
         <View style={{ gap: 10 }}>
           <SettingsRow
             icon="lock"
