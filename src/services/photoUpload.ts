@@ -1,5 +1,7 @@
 import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
-import { ref, uploadString, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, getDownloadURL, deleteObject } from 'firebase/storage';
+import { Platform } from 'react-native';
+import { uploadPreparedPhoto } from './uploadPreparedPhoto';
 import { firebase } from '../config/firebase';
 import { LocalPhoto, ReportPhoto } from '../types/photo';
 export async function uploadReportPhoto(photo: LocalPhoto, path: string): Promise<ReportPhoto> {
@@ -15,13 +17,12 @@ export async function uploadReportPhoto(photo: LocalPhoto, path: string): Promis
     const result = await rendered.saveAsync({
       format: SaveFormat.JPEG,
       compress: 0.8,
-      base64: true,
+      base64: Platform.OS === 'web',
     });
-    if (!result.base64) throw new Error('The photo could not be prepared. Please select it again.');
-    if (Math.ceil((result.base64.length * 3) / 4) >= 10 * 1024 * 1024)
+    if (result.base64 && Math.ceil((result.base64.length * 3) / 4) >= 10 * 1024 * 1024)
       throw new Error('The prepared photo is too large. Choose a smaller image.');
     const target = ref(firebase().storage, path);
-    await uploadString(target, result.base64, 'base64', { contentType: 'image/jpeg' });
+    await uploadPreparedPhoto(target, result.uri, result.base64);
     try {
       return { url: await getDownloadURL(target), path };
     } catch (error) {
