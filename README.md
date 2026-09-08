@@ -21,9 +21,13 @@ The project's Firebase client configuration is in ignored `.env.local`. For a fr
 - Three onboarding pages with Back, Continue, Skip, page indicators, reduced-motion support, and persisted completion.
 - Firebase email/password registration, login, password reset, session restoration, and logout.
 - Firestore profiles, report submission, live issue listeners, transactional confirmations, and per-account follows.
-- Firebase Storage image uploads, size/type validation, and cleanup after failed submission.
+- One to five photos per report, cover selection/removal, JPEG normalization, upload progress, and cleanup after failed submission. Native uploads retain native Blobs to avoid the React Native ArrayBuffer error.
+- Success popup with a unique CF-prefixed report reference, searchable in Home and Explore.
+- Full-screen photo gallery, live comments with owner deletion, directions, and report sharing.
+- Synced Settings, secure password changes, Privacy policy, searchable FAQ, Community guidelines, About, and private Help & feedback requests.
 - Realtime Database per-session presence with disconnect cleanup and a connection indicator.
-- Camera/library selection, GPS, form validation, search, filters, native/web maps, and activity screens.
+- Camera/library selection, GPS, form validation, search, filters, and activity screens.
+- Interactive native and web maps with real GPS markers, current-location centering, status/category/search filters, and address-only report labels. The map remains available with no reports.
 - Deployed Firestore, Realtime Database, and Storage access rules.
 
 No sample reports, fictional accounts, fake counts, sample photos, or fallback city coordinates are loaded. Categories and onboarding copy remain product constants. A manually entered address is saved without a map pin unless GPS is attached.
@@ -37,15 +41,16 @@ src/
     onboarding/    Onboarding illustration component
     ui/            Buttons, fields, screen shell, status/error UI
     home/          Home header, hero, aggregate report counts
-    issues/        Cards, category filters, status badges
+    issues/        Cards, photo picker/gallery, success popup, discussion
+    settings/      Reusable settings rows and logout action
     map/           Platform-specific maps
   config/          Firebase initialization and platform auth persistence
-  data/            Onboarding product copy
+  data/            Onboarding, FAQ, privacy, and community copy
   hooks/           Debouncing and onboarding preferences
   navigation/      Auth gate, onboarding gate, typed tabs/stack/deep links
   providers/       Firebase auth/listener lifecycle
   screens/         App screens
-  services/        Auth, reports/uploads, presence, device APIs
+  services/        Auth, reports/uploads, comments, preferences, support, maps/device APIs
   store/           In-memory live state; no demo seed or persisted issue cache
   theme/           Shared design tokens
   types/           Domain and native Firebase type declarations
@@ -56,6 +61,8 @@ scripts/           Project administration and scoped live-test cleanup
 ```
 
 ## Splash and onboarding
+
+The app-owned splash contains only the logo, without extra text. The CityFix name/loading percentage in Expo Go belongs to its development loading screen; a standalone build uses the configured splash.
 
 The original image is stored at `assets/cityfix-logo.png`. Configure the native splash in `app.json` under `expo-splash-screen`. Create a new native build to apply icon/splash configuration. Expo Go does not reproduce the release splash exactly; verify a release build, as described in the [SDK 57 splash documentation](https://docs.expo.dev/versions/v57.0.0/sdk/splash-screen/).
 
@@ -69,6 +76,7 @@ npm run format:check
 npm run build:web
 npm run test:e2e
 npm run test:rules
+node --test tests/native-upload.cjs
 ```
 
 Rules tests use the local emulators with project `demo-cityfix` and require Java 21 and Firebase CLI. Install Chromium with `npx playwright install chromium` before browser tests.
@@ -80,7 +88,7 @@ $env:CITYFIX_LIVE_TEST='1'
 npx playwright test tests/firebase-live.spec.ts --workers=1
 ```
 
-It creates a temporary test account, uploads an image and report, verifies updates across two browser sessions, and deletes that account and its data. Cleanup uses the existing Firebase CLI login, checks the test email and UID, and is scoped to that identity. If interrupted, run `node scripts/firebase-admin.cjs cleanup-test` while the matching manifest remains in `test-results/`.
+It creates a temporary test account, submits one-photo and five-photo reports, verifies success references, gallery controls, comments and updates across two browser sessions, synced settings, map markers, support requests, and logout. It deletes the test account and its data afterward. Cleanup uses the existing Firebase CLI login, checks the test email and UID, and is scoped to that identity. If interrupted, run `node scripts/firebase-admin.cjs cleanup-test` while the matching manifest remains in `test-results/`.
 
 ## Deployment and limits
 
