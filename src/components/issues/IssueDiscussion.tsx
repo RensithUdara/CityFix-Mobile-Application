@@ -1,16 +1,6 @@
 import { useEffect, useState } from 'react';
-import {
-  addDoc,
-  collection,
-  deleteDoc,
-  doc,
-  onSnapshot,
-  orderBy,
-  query,
-  serverTimestamp,
-} from 'firebase/firestore';
+import { subscribeComments, postComment, deleteComment, IssueComment } from '../../services/comments';
 import { Pressable, Text, View } from 'react-native';
-import { firebase } from '../../config/firebase';
 import { useAuthStore } from '../../store/authStore';
 import { colors } from '../../theme';
 import { errorMessage } from '../../utils/errors';
@@ -18,42 +8,13 @@ import { initials, relativeDate } from '../../utils/format';
 import { Field } from '../ui/Field';
 import { Button } from '../ui/Button';
 import { SectionHeader } from '../ui/SectionHeader';
-type Comment = {
-  id: string;
-  authorId: string;
-  authorName: string;
-  body: string;
-  createdAt: string;
-};
 export function IssueDiscussion({ issueId }: { issueId: string }) {
   const { user, profile } = useAuthStore();
-  const [comments, setComments] = useState<Comment[]>([]);
+  const [comments, setComments] = useState<IssueComment[]>([]);
   const [body, setBody] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  useEffect(
-    () =>
-      onSnapshot(
-        query(
-          collection(firebase().firestore, 'issues', issueId, 'comments'),
-          orderBy('createdAt', 'asc'),
-        ),
-        (snapshot) =>
-          setComments(
-            snapshot.docs.map(
-              (d) =>
-                ({
-                  ...d.data(),
-                  id: d.id,
-                  createdAt:
-                    d.data().createdAt?.toDate?.().toISOString() ?? new Date().toISOString(),
-                }) as Comment,
-            ),
-          ),
-        (e) => setError(errorMessage(e)),
-      ),
-    [issueId],
-  );
+  useEffect(() => subscribeComments(issueId, setComments, e => setError(errorMessage(e))), [issueId]);
   const post = async () => {
     if (!user || body.trim().length < 2) {
       setError('Write a comment of at least 2 characters.');
@@ -62,12 +23,7 @@ export function IssueDiscussion({ issueId }: { issueId: string }) {
     setBusy(true);
     setError('');
     try {
-      await addDoc(collection(firebase().firestore, 'issues', issueId, 'comments'), {
-        authorId: user.uid,
-        authorName: profile?.displayName || user.displayName || 'Community member',
-        body: body.trim(),
-        createdAt: serverTimestamp(),
-      });
+      await postComment(issueId, body, profile?.displayName || user.displayName || 'Community member');
       setBody('');
     } catch (e) {
       setError(errorMessage(e));
@@ -112,9 +68,7 @@ export function IssueDiscussion({ issueId }: { issueId: string }) {
                 accessibilityRole="button"
                 accessibilityLabel="Delete my comment"
                 onPress={() =>
-                  deleteDoc(
-                    doc(firebase().firestore, 'issues', issueId, 'comments', comment.id),
-                  ).catch((e) => setError(errorMessage(e)))
+                  deleteComment(issueId, comment.id).catch((e) => setError(errorMessage(e)))
                 }
                 style={{ padding: 8 }}
               >
