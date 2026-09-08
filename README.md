@@ -2,11 +2,11 @@
 
 <div align="center">
 
-![CityFix Logo](./assets/cityfix-logo.png)
+<img src="./assets/cityfix-logo.png" alt="CityFix Logo" width="200" height="200"/>
 
 **Report. Share. Fix. 🚀**
 
-A cross-platform mobile application for community members to report local issues, collaborate on solutions, and improve their neighborhoods.
+CityFix is a community-driven mobile app that empowers citizens to report local infrastructure issues, collaborate with neighbors, and contribute to civic improvement. With real-time updates, interactive maps, and community engagement features, CityFix bridges the gap between residents and city management to create better, safer neighborhoods.
 
 <br/>
 
