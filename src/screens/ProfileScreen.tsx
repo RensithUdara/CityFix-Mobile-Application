@@ -113,7 +113,7 @@ export function ProfileScreen() {
           description="Answers, feedback, and community guidance"
           onPress={() => navigation.navigate('FAQ')}
         />
-        <Button secondary label="Sign out" disabled={busy} onPress={signOut} />
+        <Button secondary label="Log out" icon="log-out" disabled={busy} onPress={signOut} />
       </View>
     </Screen>
   );
