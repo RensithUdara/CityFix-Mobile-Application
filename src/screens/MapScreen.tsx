@@ -53,6 +53,12 @@ export function MapScreen() {
         title="A neighborhood in focus"
         subtitle="Explore local reports and the places we can improve together."
       />
+      <Button
+        secondary
+        label="Search all reports"
+        icon="search"
+        onPress={() => navigation.navigate('Search')}
+      />
       <CategoryFilter value={category} onChange={setCategory} />
       <Field
         label="Search the map"
