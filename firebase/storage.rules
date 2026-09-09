@@ -3,7 +3,7 @@ service firebase.storage {
   match /b/{bucket}/o {
     match /issues/{uid}/{issueId}/{photoName} {
       allow read: if request.auth != null;
-      allow create: if request.auth != null && request.auth.uid == uid
+      allow create, update: if request.auth != null && request.auth.uid == uid
         && photoName in ['photo', 'photo-0.jpg', 'photo-1.jpg', 'photo-2.jpg', 'photo-3.jpg', 'photo-4.jpg']
         && request.resource.size < 10 * 1024 * 1024
         && request.resource.contentType.matches('image/.*');
