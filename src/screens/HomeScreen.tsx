@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { loadMoreIssues, setFeedFilters } from '../services/issues';
+import { Button } from '../components/ui/Button';
 import {
   FlatList,
   Pressable,
@@ -31,15 +33,20 @@ export function HomeScreen() {
     NativeStackNavigationProp<RootStackParams> & BottomTabNavigationProp<TabParams>
   >();
   const issues = useIssueStore((s) => s.issues);
+  const { feedIds, hasMore, loadingMore } = useIssueStore();
   const showResolved = usePreferencesStore((s) => s.showResolved);
   const [category, setCategory] = useState('All issues');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('All statuses');
+  useEffect(() => {
+    setFeedFilters(category, status);
+  }, [category, status]);
   const query = useDebouncedValue(search).toLowerCase();
   const { width } = useWindowDimensions();
   const columns = width > 950 ? 3 : width > 600 ? 2 : 1;
   const filtered = issues.filter(
     (i) =>
+      feedIds.includes(i.id) &&
       (showResolved || status === 'Resolved' || i.status !== 'Resolved') &&
       (category === 'All issues' || i.category === category) &&
       (status === 'All statuses' || i.status === status) &&
@@ -81,7 +88,7 @@ export function HomeScreen() {
                 <Icon name="search" size={17} color={colors.muted} />
                 <TextInput
                   accessibilityLabel="Search issues"
-                  placeholder="Search issues or a street..."
+                  placeholder="Search loaded reports or reference..."
                   placeholderTextColor={colors.muted}
                   value={search}
                   onChangeText={setSearch}
@@ -129,9 +136,19 @@ export function HomeScreen() {
           />
         }
         ListFooterComponent={
-          <View style={styles.footer}>
-            <Icon name="heart" size={14} color={colors.primary} />
-            <Text style={styles.caption}>A little more care. A better place to call home.</Text>
+          <View style={{ gap: 18 }}>
+            {hasMore && (
+              <Button
+                secondary
+                label={loadingMore ? 'Loading more…' : 'Load more reports'}
+                disabled={loadingMore}
+                onPress={() => void loadMoreIssues()}
+              />
+            )}
+            <View style={styles.footer}>
+              <Icon name="heart" size={14} color={colors.primary} />
+              <Text style={styles.caption}>A little more care. A better place to call home.</Text>
+            </View>
           </View>
         }
       />
