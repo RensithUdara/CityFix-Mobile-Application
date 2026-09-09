@@ -1,3 +1,4 @@
+import { SearchScreen } from '../screens/SearchScreen';
 import { NavigationContainer, DefaultTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -120,6 +121,7 @@ export function AppNavigator() {
             Main: {
               screens: { Home: '', Explore: 'map', Activity: 'activity', Profile: 'profile' },
             },
+            Search: 'search',
             Report: 'report',
             IssueDetails: 'issue/:id',
             Notifications: 'notifications',
@@ -141,6 +143,7 @@ export function AppNavigator() {
       }}
     >
       <Stack.Navigator
+        initialRouteName={user ? 'Main' : 'Auth'}
         screenOptions={{
           headerShadowVisible: false,
           headerStyle: { backgroundColor: colors.background },
@@ -151,6 +154,11 @@ export function AppNavigator() {
         {user ? (
           <>
             <Stack.Screen name="Main" component={Tabs} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="Search"
+              component={SearchScreen}
+              options={{ title: 'Find reports' }}
+            />
             <Stack.Screen
               name="SyncQueue"
               component={SyncQueueScreen}
