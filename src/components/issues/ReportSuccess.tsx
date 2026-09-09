@@ -3,7 +3,15 @@ import { Button } from '../ui/Button';
 import { Icon } from '../ui/Icon';
 import { colors } from '../../theme';
 import { reportReference } from '../../utils/reference';
-export function ReportSuccess({ id, onView }: { id: string | null; onView: () => void }) {
+export function ReportSuccess({
+  id,
+  onView,
+  pending = false,
+}: {
+  id: string | null;
+  onView: () => void;
+  pending?: boolean;
+}) {
   return (
     <Modal visible={!!id} transparent animationType="fade" onRequestClose={onView}>
       <View style={styles.backdrop}>
@@ -12,11 +20,12 @@ export function ReportSuccess({ id, onView }: { id: string | null; onView: () =>
             <Icon name="check" size={38} color={colors.primary} />
           </View>
           <Text accessibilityRole="header" style={styles.title}>
-            Report submitted!
+            {pending ? 'Saved on your device' : 'Report submitted!'}
           </Text>
           <Text style={styles.body}>
-            Thank you for helping your neighborhood. Your photos and report have been saved
-            successfully.
+            {pending
+              ? 'Your report is waiting to upload. It will sync when the app is open and your connection is available.'
+              : 'Thank you for helping your neighborhood. Your photos and report have been saved successfully.'}
           </Text>
           <View style={styles.reference}>
             <Text style={styles.label}>YOUR REFERENCE NUMBER</Text>
@@ -27,7 +36,11 @@ export function ReportSuccess({ id, onView }: { id: string | null; onView: () =>
           <Text style={styles.body}>
             Keep this reference to find your report or include it in a support request.
           </Text>
-          <Button label="View my report" icon="arrow-right" onPress={onView} />
+          <Button
+            label={pending ? 'Open upload queue' : 'View my report'}
+            icon="arrow-right"
+            onPress={onView}
+          />
         </View>
       </View>
     </Modal>
