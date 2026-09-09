@@ -35,7 +35,7 @@ Native maps use react-native-maps; web uses Leaflet with OpenStreetMap tiles. Ma
 
 ## Security
 
-Rules default to deny. Authenticated users can read reports, create validated reports owned by themselves, and change only their own key in a confirmation map. Firestore transactions protect concurrent confirmations and follow toggles. Profile writes cannot set an admin role. Status updates require an administrator custom claim or trusted Admin SDK/Console operation.
+Rules default to deny. Authenticated users can read reports, create validated reports owned by themselves, and change only their own key in a confirmation map. Firestore transactions protect concurrent confirmations and follow toggles. Profile writes cannot set an admin role. Status updates require an active protected admin/{uid} document or trusted Admin SDK/Console operation.
 
 Storage enforces owner path, image content type, and a file size below 10 MB. Download URLs contain bearer tokens and can be shared; application auth does not revoke a previously shared image URL. Realtime Database permits only the user's own session records. No service-account key is included in the app or repository.
 
