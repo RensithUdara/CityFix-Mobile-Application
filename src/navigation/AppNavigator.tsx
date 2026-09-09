@@ -26,6 +26,7 @@ import { SecurityScreen } from '../screens/SecurityScreen';
 import { FAQScreen } from '../screens/FAQScreen';
 import { InformationScreen } from '../screens/InformationScreen';
 import { HelpSupportScreen } from '../screens/HelpSupportScreen';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 const Stack = createNativeStackNavigator<RootStackParams>();
 const Tab = createBottomTabNavigator<TabParams>();
 const icons: Record<keyof TabParams, IconName> = {
@@ -35,6 +36,7 @@ const icons: Record<keyof TabParams, IconName> = {
   Profile: 'user',
 };
 function Tabs() {
+  const insets = useSafeAreaInsets();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -44,9 +46,9 @@ function Tabs() {
         tabBarStyle: {
           borderTopColor: colors.line,
           backgroundColor: '#FFFFFF',
-          minHeight: 72,
+          height: 76 + insets.bottom,
           paddingTop: 10,
-          paddingBottom: 10,
+          paddingBottom: Math.max(14, insets.bottom),
         },
         tabBarLabelStyle: { fontSize: 10, fontWeight: '600', marginTop: 4 },
         tabBarIcon: ({ color }) => <Icon name={icons[route.name]} size={21} color={color} />,
