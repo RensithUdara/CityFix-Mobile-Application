@@ -17,19 +17,17 @@ async function flagIssue(request) {
     reason = text(request.data?.reason, 10, 1000, 'Reason');
   if (!(await db.doc(`issues/${issueId}`).get()).exists)
     throw new HttpsError('not-found', 'Report not found.');
-  await db
-    .doc(`moderationFlags/${issueId}_${uid}`)
-    .set({
-      issueId,
-      reporterId: uid,
-      reason,
-      state: 'open',
-      createdAt: FieldValue.serverTimestamp(),
-    });
+  await db.doc(`moderationFlags/${issueId}_${uid}`).set({
+    issueId,
+    reporterId: uid,
+    reason,
+    state: 'open',
+    createdAt: FieldValue.serverTimestamp(),
+  });
   return { ok: true };
 }
 async function moderateIssue(request) {
-  const uid = requireAdmin(request);
+  const uid = await requireAdmin(request);
   await rateLimit(uid, 'moderate');
   const issueId = id(request.data?.issueId),
     action = request.data?.action,
