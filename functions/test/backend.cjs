@@ -17,7 +17,8 @@ test(
     } = require('../src/integrations');
     const { notifyFollowers, deliverPush } = require('../src/notifications');
     const auth = { uid: 'backend-alice', token: {} };
-    const admin = { uid: 'backend-moderator', token: { admin: true } };
+    const admin = { uid: 'backend-moderator', token: {} };
+    await db.doc('admin/' + admin.uid).set({ active: true, role: 'admin' });
     const report = {
       ownerId: auth.uid,
       title: 'Road needs repair',
@@ -123,6 +124,88 @@ test(
     assert.equal(
       (await db.doc('users/' + auth.uid + '/achievements/summary').get()).data().reports,
       0,
+    );
+    const { searchIssues } = require('../src/search');
+    const found = await searchIssues({ auth, data: { query: 'pavement', severity: 'High' } });
+    assert.equal(found.items.length, 2);
+    assert.equal(found.items[0].ownerId, undefined);
+    await assert.rejects(
+      searchIssues({ auth, data: { cursor: 'bad' } }),
+      (e) => e.code === 'invalid-argument',
+    );
+    const { queueWebhooks, deliverWebhook, manageWebhook } = require('../src/webhooks');
+    await assert.rejects(
+      manageWebhook({ auth, data: { action: 'disable', id: 'test' } }),
+      (e) => e.code === 'permission-denied',
+    );
+    await db.doc('webhooks/test').set({ active: true, events: ['issue.created'] });
+    await queueWebhooks('unique-event', 'backend-1', null, report);
+    await queueWebhooks('unique-event', 'backend-1', null, report);
+    const deliveries = await db.collection('webhookDeliveries').get();
+    assert.equal(deliveries.size, 1);
+    await db.doc('webhooks/test').update({ active: false });
+    await deliverWebhook(deliveries.docs[0].id);
+    assert.equal((await deliveries.docs[0].ref.get()).data().state, 'cancelled');
+    const dns = require('node:dns/promises'),
+      https = require('node:https'),
+      crypto = require('node:crypto');
+    const originalResolve = dns.resolve4,
+      originalRequest = https.request;
+    let responseCode = 204;
+    try {
+      dns.resolve4 = async () => ['8.8.8.8'];
+      https.request = (_url, options, callback) => ({
+        setTimeout() {},
+        on() {},
+        end(body) {
+          assert.equal(options.family, 4);
+          assert.equal(
+            options.headers['X-CityFix-Signature'],
+            crypto
+              .createHmac('sha256', 'test-secret')
+              .update(`${options.headers['X-CityFix-Timestamp']}.${body}`)
+              .digest('hex'),
+          );
+          options.lookup('example.com', {}, (_error, address, family) => {
+            assert.equal(address, '8.8.8.8');
+            assert.equal(family, 4);
+          });
+          callback({ statusCode: responseCode, destroy() {} });
+        },
+      });
+      await db
+        .doc('webhooks/test')
+        .set({ active: true, events: ['issue.created'], url: 'https://example.com/events' });
+      await db.doc('webhookSecrets/test').set({ secret: 'test-secret' });
+      await queueWebhooks('delivery-test', 'backend-1', null, report);
+      const queued = await db.collection('webhookDeliveries').where('state', '==', 'pending').get();
+      await deliverWebhook(queued.docs[0].id);
+      assert.equal((await queued.docs[0].ref.get()).data().state, 'delivered');
+      responseCode = 503;
+      await queueWebhooks('failure-test', 'backend-1', null, report);
+      const failed = await db.collection('webhookDeliveries').where('state', '==', 'pending').get();
+      for (let attempt = 0; attempt < 5; attempt++) {
+        await failed.docs[0].ref.update({ nextAttemptAt: 0 });
+        await deliverWebhook(failed.docs[0].id);
+      }
+      assert.equal((await failed.docs[0].ref.get()).data().state, 'failed');
+      assert.equal((await failed.docs[0].ref.get()).data().attempts, 5);
+    } finally {
+      dns.resolve4 = originalResolve;
+      https.request = originalRequest;
+    }
+    await db.doc('admin/' + admin.uid).update({ active: false });
+    await assert.rejects(
+      moderateIssue({
+        auth: admin,
+        data: {
+          issueId: 'backend-1',
+          action: 'status',
+          status: 'Resolved',
+          reason: 'Revocation test',
+        },
+      }),
+      (e) => e.code === 'permission-denied',
     );
     await Promise.all(getApps().map(deleteApp));
   },
