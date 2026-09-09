@@ -181,7 +181,11 @@ export function IssueDetailsScreen({
             }
           />
         </View>
-        {!!feedback && <Text accessibilityRole="alert" style={styles.muted}>{feedback}</Text>}
+        {!!feedback && (
+          <Text accessibilityRole="alert" style={styles.muted}>
+            {feedback}
+          </Text>
+        )}
         <IssueDiscussion key={issue.id} issueId={issue.id} />
       </View>
     </Screen>
