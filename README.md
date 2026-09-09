@@ -731,16 +731,16 @@ Have an idea? Share it via [GitHub Discussions](#) or [create a feature request]
 
 ### Upcoming Features 🚀
 
-- [ ] Push notifications
-- [ ] Offline support with sync queue
-- [ ] Server-side pagination
-- [ ] Issue moderation tools
-- [ ] Advanced analytics
-- [ ] Community badges & gamification
-- [ ] API for third-party integrations
+- [x] Push notifications
+- [x] Offline support with sync queue
+- [x] Server-side pagination
+- [x] Issue moderation tools
+- [x] Advanced analytics
+- [x] Community badges & gamification
+- [x] API for third-party integrations
 - [ ] Dark mode support
 - [ ] Multi-language support
-- [ ] Issue subscriptions
+- [x] Issue subscriptions
 
 ### Future Enhancements 💡
 
@@ -762,3 +762,7 @@ Made with ❤️ by the CityFix Community
 [⬆ Back to Top](#-cityfix---community-issue-reporting-platform)
 
 </div>
+
+### Feature implementation and setup
+
+See [feature behavior and remaining configuration](docs/FEATURES.md) and [integration API documentation](docs/API.md). Native push delivery still requires an Expo/EAS project, platform credentials, and device verification. Moderation requires an administrator custom claim. Offline uploads resume while the app is open.
