@@ -1,6 +1,6 @@
 # CityFix integration API
 
-Create a key in Settings → Developer integrations. The secret is returned once; only its SHA-256 hash is stored on the server. Revoke keys through the authenticated `revokeIntegrationKey` callable. Keys expire after 90 days, are read-only, and permit 60 requests per minute per key.
+Integration key management is excluded from the consumer app. A trusted developer client can call `createIntegrationKey` with a signed-in Firebase session and a label. The secret is returned once; only its SHA-256 hash is stored on the server. Revoke keys through the authenticated `revokeIntegrationKey` callable. Keys expire after 90 days, are read-only, and permit 60 requests per minute per key.
 
 Base URL: `https://us-central1-cityfix-community-20260908.cloudfunctions.net/integrationApi`
 
