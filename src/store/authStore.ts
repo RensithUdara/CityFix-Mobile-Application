@@ -7,4 +7,10 @@ export const useAuthStore = create<{
   loading: boolean;
   error: string;
   connected: boolean;
-}>(() => ({ user: null, profile: null, loading: true, error: '', connected: false }));
+}>(() => ({
+  user: null,
+  profile: null,
+  loading: true,
+  error: '',
+  connected: false,
+}));
