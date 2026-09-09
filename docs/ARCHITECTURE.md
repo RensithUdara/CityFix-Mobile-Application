@@ -8,14 +8,14 @@ The supplied logo is bundled locally and requires no image service. `BrandLogo` 
 
 ## Firebase responsibilities
 
-| Service                                                 | Data / behavior                                                                             |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| Authentication                                          | Email/password identity, reset email, session persistence                                   |
-| Firestore `users/{uid}`                                 | Display name and neighborhood; readable/writable only by that user                          |
-| Firestore `users/{uid}/follows/{issueId}`               | Private followed issues                                                                     |
+| Service                                                 | Data / behavior                                                                                          |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| Authentication                                          | Email/password identity, reset email, session persistence                                                |
+| Firestore `users/{uid}`                                 | Display name and neighborhood; readable/writable only by that user                                       |
+| Firestore `users/{uid}/follows/{issueId}`               | Private followed issues                                                                                  |
 | Firestore `issues/{id}`                                 | Report, owner UID, status, server timestamps, coordinates, ordered photo URL/path list, confirmation map |
-| Storage `issues/{uid}/{issueId}/photo-{0..4}.jpg`                  | Normalized JPEG report photos; authenticated reads, owner uploads/deletes                           |
-| Realtime Database `presence/{uid}/sessions/{sessionId}` | Per-device foreground connection presence, private to its user                              |
+| Storage `issues/{uid}/{issueId}/photo-{0..4}.jpg`       | Normalized JPEG report photos; authenticated reads, owner uploads/deletes                                |
+| Realtime Database `presence/{uid}/sessions/{sessionId}` | Per-device foreground connection presence, private to its user                                           |
 
 Firestore is the source of truth for durable domain data. Realtime Database is used for presence, not a duplicate report database. Screen components call service-backed store actions. Firebase listeners update in-memory Zustand state. Listeners detach and account-specific state clears when auth changes. Native Firebase auth persistence uses AsyncStorage; browser auth uses Firebase's browser persistence.
 
