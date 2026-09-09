@@ -17,8 +17,6 @@ export type RootStackParams = {
   Badges: undefined;
   Subscriptions: undefined;
   PushSettings: undefined;
-  Integrations: undefined;
-  Moderation: undefined;
 };
 export type TabParams = {
   Home: undefined;
