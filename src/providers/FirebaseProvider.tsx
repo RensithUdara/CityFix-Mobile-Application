@@ -9,7 +9,10 @@ import { subscribePresence } from '../services/presence';
 import { errorMessage } from '../utils/errors';
 import { subscribePreferences } from '../services/preferences';
 import { defaultPreferences, usePreferencesStore } from '../store/preferencesStore';
+import { startSyncQueue } from '../services/syncQueue';
+import { listenForNotificationTaps } from '../services/push';
 export function FirebaseProvider({ children }: PropsWithChildren) {
+  useEffect(() => listenForNotificationTaps(), []);
   useEffect(() => {
     if (!firebaseConfigured) {
       useAuthStore.setState({ loading: false });
@@ -24,6 +27,7 @@ export function FirebaseProvider({ children }: PropsWithChildren) {
         usePreferencesStore.setState(defaultPreferences);
         useAuthStore.setState({ user, profile: null, loading: false, error: '' });
         if (!user) return;
+        const stopQueue = startSyncQueue(user.uid);
         const stopIssues = subscribeIssues(user.uid);
         const stopPresence = subscribePresence(user.uid);
         const stopPreferences = subscribePreferences(user.uid);
@@ -41,6 +45,7 @@ export function FirebaseProvider({ children }: PropsWithChildren) {
           stopPresence();
           stopProfile();
           stopPreferences();
+          stopQueue();
         };
       },
       (error) => useAuthStore.setState({ loading: false, error: errorMessage(error) }),
