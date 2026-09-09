@@ -2,25 +2,30 @@ import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../../theme';
 import { Issue } from '../../types/issue';
 import { Icon, IconName } from '../ui/Icon';
+import { useLiveDocument } from '../../hooks/useLiveDocument';
 export function CommunityStats({ issues }: { issues: Issue[] }) {
+  const { data } = useLiveDocument<{ total: number; byStatus: Record<string, number> }>(
+    'analytics/community',
+  );
   const stats: { label: string; value: number; icon: IconName; color: string; bg: string }[] = [
     {
-      label: 'Issues reported',
-      value: issues.length,
+      label: data ? 'Issues reported' : 'Reports loaded',
+      value: data?.total ?? issues.length,
       icon: 'flag',
       color: colors.primary,
       bg: colors.pale,
     },
     {
       label: 'In progress',
-      value: issues.filter((i) => i.status === 'In progress').length,
+      value:
+        data?.byStatus?.['In progress'] ?? issues.filter((i) => i.status === 'In progress').length,
       icon: 'tool',
       color: colors.orange,
       bg: colors.orangeLight,
     },
     {
       label: 'Made better',
-      value: issues.filter((i) => i.status === 'Resolved').length,
+      value: data?.byStatus?.Resolved ?? issues.filter((i) => i.status === 'Resolved').length,
       icon: 'check-circle',
       color: colors.primary,
       bg: colors.pale,
