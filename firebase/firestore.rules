@@ -17,9 +17,25 @@ service cloud.firestore {
         && request.resource.data.neighborhood is string && request.resource.data.neighborhood.size() <= 160;
       match /follows/{issueId} {
         allow read, delete: if owner(uid);
-        allow create: if owner(uid) && existsAfter(/databases/$(database)/documents/issues/$(issueId))
-          && request.resource.data.keys().hasOnly(['createdAt']) && request.resource.data.createdAt == request.time;
+        allow create, update: if owner(uid) && existsAfter(/databases/$(database)/documents/issues/$(issueId))
+          && request.resource.data.keys().hasOnly(['createdAt', 'issueId', 'statusUpdates', 'commentUpdates'])
+          && request.resource.data.issueId == issueId && request.resource.data.statusUpdates is bool && request.resource.data.commentUpdates is bool
+          && request.resource.data.createdAt is timestamp;
       }
+      match /pushTokens/{deviceId} {
+        allow read, delete: if owner(uid);
+        allow create, update: if owner(uid) && request.resource.data.keys().hasOnly(['token', 'platform', 'updatedAt'])
+          && request.resource.data.token is string && request.resource.data.token.size() <= 250
+          && request.resource.data.token.matches('(ExponentPushToken|ExpoPushToken)\\[.*\\]')
+          && request.resource.data.platform in ['ios', 'android'] && request.resource.data.updatedAt == request.time;
+      }
+      match /notifications/{id} {
+        allow read: if owner(uid);
+        allow update: if owner(uid) && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']) && request.resource.data.read is bool;
+        allow delete: if owner(uid);
+      }
+      match /achievements/{id} { allow read: if owner(uid); }
+      match /apiKeys/{id} { allow read: if owner(uid); }
       match /preferences/app {
         allow read: if owner(uid);
         allow create, update: if owner(uid) && request.resource.data.keys().hasOnly(['autoFollow', 'showResolved', 'defaultSeverity'])
@@ -33,6 +49,9 @@ service cloud.firestore {
           && request.resource.data.status == 'Received' && request.resource.data.createdAt == request.time;
       }
     }
+    match /analytics/{id} { allow read: if signedIn(); }
+    match /moderationFlags/{id} { allow read: if admin(); }
+    match /moderationAudit/{id} { allow read: if admin(); }
     match /issues/{issueId} {
       allow read: if signedIn();
       allow create: if signedIn()
