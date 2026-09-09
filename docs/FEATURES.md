@@ -20,11 +20,11 @@ Native registration uses Expo Push Service, which delivers through FCM/APNs. Add
 
 ## Moderation
 
-Moderation and developer integration screens are excluded from the consumer app, including settings links and deep links. The backend remains available for a separate administrative interface; that interface is not included. Users can still flag reports from issue details.
+Moderation and developer integration screens are excluded from the consumer app, including settings links and deep links. The backend remains available for a separate administrative interface; that interface is now available in `admin-web/` (see [ADMIN.md](ADMIN.md)). Users can still flag reports from issue details.
 
-Any authenticated user can flag a report. Callable functions enforce moderator access through the `admin` custom claim; hiding or showing a screen is not the security boundary. Moderators can update status, dismiss flags, or delete reports with a required reason. Every action writes a private audit record. Deletions create a retried cleanup job for comments, follows, and photos.
+Any authenticated user can flag a report. Callable functions enforce moderator access through the protected `admin/{uid}` document; hiding or showing a screen is not the security boundary. Moderators can update status, dismiss flags, or delete reports with a required reason. Every action writes a private audit record. Deletions create a retried cleanup job for comments, follows, and photos.
 
-Assign the admin claim to an explicitly chosen registered account using the Firebase Admin SDK in a trusted environment. No client can grant itself access. A moderator email still needs to be selected by the project owner.
+Activate an explicitly chosen registered account using the trusted helper described in [ADMIN.md](ADMIN.md). No client can grant itself access. A moderator email still needs to be selected by the project owner.
 
 ## Analytics and badges
 
