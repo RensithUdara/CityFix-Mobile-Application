@@ -34,7 +34,36 @@ async function main() {
     return data;
   }
   const action = process.argv[2];
-  if (action === 'cleanup-test') {
+  if (action === 'grant-admin' || action === 'revoke-admin') {
+    const email = process.argv[3];
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      throw new Error('Provide the existing Firebase account email.');
+    const lookup = await request(
+      `https://identitytoolkit.googleapis.com/v1/projects/${project}/accounts:lookup`,
+      'POST',
+      { email: [email] },
+    );
+    const user = lookup.users?.[0];
+    if (!user || user.email.toLowerCase() !== email.toLowerCase())
+      throw new Error('Registered account not found. Create an account in CityFix first.');
+    await request(
+      `https://firestore.googleapis.com/v1/projects/${project}/databases/(default)/documents/admin/${user.localId}`,
+      'PATCH',
+      {
+        fields: {
+          email: { stringValue: user.email },
+          role: { stringValue: 'admin' },
+          active: { booleanValue: action === 'grant-admin' },
+          updatedAt: { timestampValue: new Date().toISOString() },
+        },
+      },
+    );
+    console.log(
+      action === 'grant-admin'
+        ? 'Admin access activated for the specified account.'
+        : 'Admin access revoked for the specified account.',
+    );
+  } else if (action === 'cleanup-test') {
     const manifest = JSON.parse(
       fs.readFileSync('test-results/firebase-test-resources.json', 'utf8'),
     );
