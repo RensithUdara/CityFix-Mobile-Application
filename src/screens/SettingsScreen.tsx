@@ -120,6 +120,35 @@ export function SettingsScreen({
             {error}
           </Text>
         )}
+        <SectionHeader title="More ways to participate" />
+        <View style={{ gap: 10 }}>
+          <SettingsRow
+            icon="upload-cloud"
+            title="Upload queue"
+            description="Pending reports and automatic sync"
+            onPress={() => navigation.navigate('SyncQueue')}
+          />
+          <SettingsRow
+            icon="bell"
+            title="Push notifications"
+            onPress={() => navigation.navigate('PushSettings')}
+          />
+          <SettingsRow
+            icon="bookmark"
+            title="Issue subscriptions"
+            onPress={() => navigation.navigate('Subscriptions')}
+          />
+          <SettingsRow
+            icon="bar-chart-2"
+            title="Community analytics"
+            onPress={() => navigation.navigate('Analytics')}
+          />
+          <SettingsRow
+            icon="award"
+            title="Your badges"
+            onPress={() => navigation.navigate('Badges')}
+          />
+        </View>
         <SectionHeader title="Account & support" />
         <LogoutButton />
         <View style={{ gap: 10 }}>
