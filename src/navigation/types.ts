@@ -3,6 +3,7 @@ export type RootStackParams = {
   Main: NavigatorScreenParams<TabParams> | undefined;
   IssueDetails: { id: string };
   Report: undefined;
+  Search: undefined;
   Notifications: undefined;
   Auth: undefined;
   Settings: undefined;
