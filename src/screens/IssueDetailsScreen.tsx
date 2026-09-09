@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { subscribeIssue } from '../services/issues';
+import { FlagIssue } from '../components/issues/FlagIssue';
 import { errorMessage } from '../utils/errors';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 import { shareReport } from '../services/shareReport';
@@ -18,7 +20,15 @@ import { reportReference } from '../utils/reference';
 export function IssueDetailsScreen({
   route,
 }: NativeStackScreenProps<RootStackParams, 'IssueDetails'>) {
-  const { issues, followed, confirmed, toggleFollow, toggleConfirm } = useIssueStore();
+  const {
+    issues,
+    followed,
+    confirmed,
+    toggleFollow,
+    toggleConfirm,
+    error: loadError,
+  } = useIssueStore();
+  useEffect(() => subscribeIssue(route.params.id), [route.params.id]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [feedback, setFeedback] = useState('');
@@ -39,7 +49,7 @@ export function IssueDetailsScreen({
       <Screen>
         <EmptyState
           title="Issue not found"
-          description="This report is unavailable or still loading."
+          description={loadError || 'This report is unavailable or still loading.'}
         />
       </Screen>
     );
@@ -187,6 +197,7 @@ export function IssueDetailsScreen({
           </Text>
         )}
         <IssueDiscussion key={issue.id} issueId={issue.id} />
+        <FlagIssue issueId={issue.id} />
       </View>
     </Screen>
   );
