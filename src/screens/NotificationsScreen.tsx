@@ -1,45 +1,87 @@
-import { Text, View } from 'react-native';
-import { Screen } from '../components/ui/Screen';
-import { SectionHeader } from '../components/ui/SectionHeader';
-import { EmptyState } from '../components/ui/EmptyState';
-import { useIssueStore } from '../store/issueStore';
+import { useEffect, useState } from 'react';
+import { Pressable, Text, View } from 'react-native';
+import { collection, doc, limit, onSnapshot, orderBy, query, updateDoc } from 'firebase/firestore';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParams } from '../navigation/types';
+import { firebase } from '../config/firebase';
+import { useAuthStore } from '../store/authStore';
+import { FeaturePage, featureStyles as styles } from '../components/ui/FeaturePage';
+import { Button } from '../components/ui/Button';
 import { colors } from '../theme';
-import { StatusBadge } from '../components/issues/StatusBadge';
+import { errorMessage } from '../utils/errors';
+type InboxItem = { id: string; issueId: string; title: string; body: string; read: boolean };
 export function NotificationsScreen() {
-  const { issues, followed } = useIssueStore();
-  const watched = issues.filter((i) => followed.includes(i.id));
+  const uid = useAuthStore((s) => s.user?.uid);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParams>>();
+  const [items, setItems] = useState<InboxItem[]>([]),
+    [error, setError] = useState('');
+  useEffect(
+    () =>
+      uid
+        ? onSnapshot(
+            query(
+              collection(firebase().firestore, 'users', uid, 'notifications'),
+              orderBy('createdAt', 'desc'),
+              limit(100),
+            ),
+            (snap) => setItems(snap.docs.map((d) => ({ ...d.data(), id: d.id }) as InboxItem)),
+            (e) => setError(errorMessage(e)),
+          )
+        : undefined,
+    [uid],
+  );
+  const open = async (item: InboxItem) => {
+    try {
+      await updateDoc(doc(firebase().firestore, 'users', uid!, 'notifications', item.id), {
+        read: true,
+      });
+      navigation.navigate('IssueDetails', { id: item.issueId });
+    } catch (e) {
+      setError(errorMessage(e));
+    }
+  };
   return (
-    <Screen>
-      <SectionHeader
-        title="A little good news"
-        subtitle="Current status of the issues you follow."
-      />
-      {watched.length ? (
-        watched.map((i) => (
-          <View
-            key={i.id}
-            style={{
-              padding: 22,
-              gap: 13,
-              borderRadius: 16,
-              backgroundColor: 'white',
-              borderWidth: 1,
-              borderColor: colors.line,
-            }}
-          >
-            <Text style={{ color: colors.ink, fontWeight: '700' }}>{i.title}</Text>
-            <StatusBadge status={i.status} />
-          </View>
-        ))
-      ) : (
-        <EmptyState
-          title="You’re all caught up"
-          description="Follow a report to see its current status here."
+    <FeaturePage
+      title="Your community updates"
+      subtitle={items.filter((i) => !i.read).length + ' unread updates ? Latest 100 notifications'}
+      error={error}
+    >
+      <View style={{ gap: 10 }}>
+        <Button
+          secondary
+          label="Push notification settings"
+          icon="bell"
+          onPress={() => navigation.navigate('PushSettings')}
         />
+        <Button
+          secondary
+          label="Manage issue subscriptions"
+          icon="bookmark"
+          onPress={() => navigation.navigate('Subscriptions')}
+        />
+      </View>
+      {items.map((item) => (
+        <Pressable
+          key={item.id}
+          accessibilityRole="button"
+          accessibilityLabel={item.title}
+          onPress={() => void open(item)}
+          style={[styles.card, !item.read && { borderColor: colors.primary }]}
+        >
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.body}>{item.body}</Text>
+          <Text style={styles.body}>{item.read ? 'Read' : 'New'}</Text>
+        </Pressable>
+      ))}
+      {!items.length && (
+        <View style={styles.card}>
+          <Text style={styles.title}>You?re all caught up</Text>
+          <Text style={styles.body}>
+            Follow reports and choose your subscription preferences to receive updates here.
+          </Text>
+        </View>
       )}
-      <Text style={{ color: colors.muted, fontSize: 12, lineHeight: 20 }}>
-        Followed issue statuses update live while the app is open.
-      </Text>
-    </Screen>
+    </FeaturePage>
   );
 }
