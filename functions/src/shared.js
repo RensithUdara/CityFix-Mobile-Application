@@ -7,9 +7,9 @@ function requireUser(request) {
   if (!request.auth) throw new HttpsError('unauthenticated', 'Please sign in.');
   return request.auth.uid;
 }
-function requireAdmin(request) {
+async function requireAdmin(request) {
   const uid = requireUser(request);
-  if (request.auth.token.admin !== true)
+  if ((await db.doc(`admin/${uid}`).get()).data()?.active !== true)
     throw new HttpsError('permission-denied', 'Moderator access is required.');
   return uid;
 }
