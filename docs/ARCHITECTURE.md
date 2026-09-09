@@ -25,7 +25,7 @@ Private preferences live at `users/{uid}/preferences/app`; support submissions a
 
 Validate the form and 1?5 photo selection ? allocate a Firestore ID ? normalize and resize each image to JPEG ? upload sequentially ? obtain download URLs ? atomically save the report and optional automatic follow ? show a success popup only after the write is acknowledged. The unique user-facing reference is `CF-` plus the complete Firestore ID, so existing reports have references without a migration or collision-prone truncation.
 
-`photoUpload.ts` handles normalization. The platform upload adapter uses base64 with Firebase on web, and a local-file XMLHttpRequest returning a native Blob plus `uploadBytes` on iOS/Android. Native code avoids `uploadString`, which turns base64 into Uint8Array and triggers unsupported Blob construction in React Native. Native Blobs are closed after success or failure. Failed document writes attempt to remove all uploaded images. A process termination between upload and document creation can still leave orphans.
+`photoUpload.ts` handles normalization. The platform upload adapter uses base64 with Firebase on web, and a local-file XMLHttpRequest returning a native Blob plus `uploadBytes` on iOS/Android. Native code avoids `uploadString`, which turns base64 into Uint8Array and triggers unsupported Blob construction in React Native. Native Blobs are closed after success or failure. Queued submissions retain uploaded images for retries using the same report ID. Non-queued failed document writes attempt to remove uploaded images. A process termination between upload and document creation can still leave orphans.
 
 Coordinates are nullable. Without GPS the issue is searchable by its address but has no fabricated map location. An actual GPS position is attached only after foreground permission and successful location capture.
 
@@ -39,7 +39,7 @@ Rules default to deny. Authenticated users can read reports, create validated re
 
 Storage enforces owner path, image content type, and a file size below 10 MB. Download URLs contain bearer tokens and can be shared; application auth does not revoke a previously shared image URL. Realtime Database permits only the user's own session records. No service-account key is included in the app or repository.
 
-Confirmation maps are intentionally simple and have Firestore document-size limits. At larger scale move confirmations into subcollections and maintain trusted aggregate counts. The current feed is a live collection listener; add query limits/geospatial indexes and pagination as the community grows.
+Confirmation maps are intentionally simple and have Firestore document-size limits. At larger scale move confirmations into subcollections and maintain trusted aggregate counts. The feed uses a live first page of 20 reports and cursor-based server pagination with category/status filters. Text search and map markers cover loaded reports; geospatial querying remains a future improvement.
 
 ## Project and operations
 
@@ -51,4 +51,4 @@ The configured project is `cityfix-community-20260908`. `.firebaserc` pins CLI d
 
 Rules emulator tests exercise unauthenticated access, ownership spoofing, cross-account profile/follow access, confirmation integrity, admin-only status updates, private presence, disallowed uploads, photo count/path validation, private preferences/support, comment authorship/deletion, and atomic automatic follows. Browser tests cover auth form validation, onboarding navigation/persistence, and optionally actual Firebase signup, upload, report, live cross-session updates, profile editing, and logout.
 
-Native device testing remains necessary for permission prompts, camera/library URIs, GPS, native maps, large accessibility text, and the release splash. Background push notifications, a durable offline outbox, server pagination, and moderation screens are separate future features.
+Native device testing remains necessary for permission prompts, camera/library URIs, GPS, native maps, large accessibility text, and the release splash. Push notifications, a durable offline outbox, server pagination, subscriptions, moderation, analytics, badges, and integration keys are implemented; see [feature architecture and operational limits](FEATURES.md) and [API](API.md). Native push credentials and device delivery still need verification.
