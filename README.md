@@ -448,7 +448,7 @@ Tests verify:
 - 🚫 **Default Deny** - All access denied by default
 - 👤 **User-Scoped Access** - Users can only read/modify their own data
 - 📝 **Report Ownership** - Only report owner can modify their report
-- 🔑 **Admin Operations** - Status updates require admin custom claim
+- 🔑 **Admin Operations** - Status updates require active admin document
 - 📸 **Storage Path Validation** - Photos only in `issues/{uid}/{issueId}/`
 
 ### Data Validation
@@ -745,11 +745,11 @@ Have an idea? Share it via [GitHub Discussions](#) or [create a feature request]
 ### Future Enhancements 💡
 
 - [ ] Mobile app distribution (App Store, Google Play)
-- [ ] Admin dashboard
-- [ ] Webhook integrations
-- [ ] Advanced search & filters
-- [ ] Issue clustering on maps
-- [ ] Community statistics & insights
+- [x] Admin dashboard
+- [x] Webhook integrations
+- [x] Advanced search & filters
+- [x] Issue clustering on maps
+- [x] Community statistics & insights
 
 ---
 
@@ -765,4 +765,8 @@ Made with ❤️ by the CityFix Community
 
 ### Feature implementation and setup
 
-See [feature behavior and remaining configuration](docs/FEATURES.md) and [integration API documentation](docs/API.md). Native push delivery still requires an Expo/EAS project, platform credentials, and device verification. Moderation requires an administrator custom claim. Offline uploads resume while the app is open.
+See [feature behavior and remaining configuration](docs/FEATURES.md) and [integration API documentation](docs/API.md). Native push delivery still requires an Expo/EAS project, platform credentials, and device verification. Moderation requires an active protected admin/{uid} document. Offline uploads resume while the app is open.
+
+### Admin web application
+
+The separate React dashboard lives in `admin-web/`. Run `npm install` and `npm run dev` from that directory. See [admin setup, roles, webhooks and search behavior](docs/ADMIN.md). Admin accounts use Firebase Authentication plus protected `admin/{uid}` records.
