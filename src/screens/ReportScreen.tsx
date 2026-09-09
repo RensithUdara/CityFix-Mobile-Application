@@ -9,7 +9,7 @@ import { Field } from '../components/ui/Field';
 import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { CategoryFilter } from '../components/issues/CategoryFilter';
-import { useIssueStore } from '../store/issueStore';
+import { submitOrQueue } from '../services/syncQueue';
 import { Category, NewIssue } from '../types/issue';
 import { currentLocation, pickPhotos } from '../services/device';
 import { LocalPhoto, MAX_REPORT_PHOTOS } from '../types/photo';
@@ -44,7 +44,7 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
   const [located, setLocated] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const addIssue = useIssueStore((s) => s.addIssue);
+  const [queued, setQueued] = useState(false);
   const choosePhoto = async (camera: boolean) => {
     try {
       setError('');
@@ -81,7 +81,7 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
     setSubmitting(true);
     setError('');
     try {
-      const id = await addIssue(
+      const result = await submitOrQueue(
         {
           ...data,
           title: data.title.trim(),
@@ -94,7 +94,8 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
         },
         setProgress,
       );
-      setSubmittedId(id);
+      setQueued(!result.submitted);
+      setSubmittedId(result.id);
     } catch (error) {
       setError(errorMessage(error));
     } finally {
@@ -105,8 +106,12 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
     <Screen>
       <ReportSuccess
         id={submittedId}
+        pending={queued}
         onView={() => {
-          if (submittedId) navigation.replace('IssueDetails', { id: submittedId });
+          if (submittedId) {
+            if (queued) navigation.replace('SyncQueue');
+            else navigation.replace('IssueDetails', { id: submittedId });
+          }
         }}
       />
       <View style={{ maxWidth: 720, width: '100%', alignSelf: 'center', gap: 26 }}>
