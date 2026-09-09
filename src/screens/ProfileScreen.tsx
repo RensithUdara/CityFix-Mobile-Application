@@ -1,3 +1,4 @@
+import { LogoutButton } from '../components/settings/LogoutButton';
 import { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Screen } from '../components/ui/Screen';
@@ -6,7 +7,7 @@ import { Field } from '../components/ui/Field';
 import { Button } from '../components/ui/Button';
 import { useAuthStore } from '../store/authStore';
 import { useIssueStore } from '../store/issueStore';
-import { logout, saveProfile } from '../services/auth';
+import { saveProfile } from '../services/auth';
 import { errorMessage } from '../utils/errors';
 import { initials } from '../utils/format';
 import { colors } from '../theme';
@@ -39,15 +40,6 @@ export function ProfileScreen() {
     } catch (error) {
       setMessage(errorMessage(error));
     } finally {
-      setBusy(false);
-    }
-  };
-  const signOut = async () => {
-    setBusy(true);
-    try {
-      await logout();
-    } catch (error) {
-      setMessage(errorMessage(error));
       setBusy(false);
     }
   };
@@ -113,7 +105,7 @@ export function ProfileScreen() {
           description="Answers, feedback, and community guidance"
           onPress={() => navigation.navigate('FAQ')}
         />
-        <Button secondary label="Log out" icon="log-out" disabled={busy} onPress={signOut} />
+        <LogoutButton disabled={busy} />
       </View>
     </Screen>
   );
