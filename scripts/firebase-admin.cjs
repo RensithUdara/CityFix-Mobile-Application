@@ -74,10 +74,20 @@ async function main() {
         await request(`https://firestore.googleapis.com/v1/${row.document.name}`, 'DELETE');
       }
     }
-    for (const collection of ['preferences', 'supportRequests']) {
+    for (const collection of [
+      'preferences',
+      'supportRequests',
+      'notifications',
+      'pushTokens',
+      'apiKeys',
+      'achievements',
+    ]) {
       const items = await request(`${base}/users/${manifest.uid}/${collection}`);
-      for (const item of items.documents || [])
+      for (const item of items.documents || []) {
+        if (collection === 'apiKeys')
+          await request(`${base}/integrationKeys/${item.name.split('/').at(-1)}`, 'DELETE');
         await request(`https://firestore.googleapis.com/v1/${item.name}`, 'DELETE');
+      }
     }
     const follows = await request(`${base}/users/${manifest.uid}/follows`);
     for (const document of follows.documents || [])
