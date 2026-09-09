@@ -3,6 +3,9 @@ import { Issue, NewIssue } from '../types/issue';
 import { createIssue, toggleConfirm, toggleFollow } from '../services/issues';
 type IssueState = {
   issues: Issue[];
+  feedIds: string[];
+  hasMore: boolean;
+  loadingMore: boolean;
   followed: string[];
   confirmed: string[];
   loading: boolean;
@@ -14,6 +17,9 @@ type IssueState = {
 };
 export const useIssueStore = create<IssueState>((set) => ({
   issues: [],
+  feedIds: [],
+  hasMore: true,
+  loadingMore: false,
   followed: [],
   confirmed: [],
   loading: true,
@@ -21,5 +27,15 @@ export const useIssueStore = create<IssueState>((set) => ({
   addIssue: createIssue,
   toggleFollow,
   toggleConfirm,
-  reset: () => set({ issues: [], followed: [], confirmed: [], loading: true, error: '' }),
+  reset: () =>
+    set({
+      issues: [],
+      feedIds: [],
+      hasMore: true,
+      loadingMore: false,
+      followed: [],
+      confirmed: [],
+      loading: true,
+      error: '',
+    }),
 }));
