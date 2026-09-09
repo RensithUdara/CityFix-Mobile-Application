@@ -60,7 +60,16 @@ test('Firestore enforces ownership, profile isolation, confirmation integrity, a
   );
   await assertFails(bob.doc('users/alice').get());
   await assertFails(alice.doc('users/alice').update({ admin: true }));
-  await assertSucceeds(alice.doc('users/alice/follows/a').set({ createdAt: serverTimestamp() }));
+  await assertSucceeds(
+    alice
+      .doc('users/alice/follows/a')
+      .set({
+        createdAt: serverTimestamp(),
+        issueId: 'a',
+        statusUpdates: true,
+        commentUpdates: false,
+      }),
+  );
   await assertFails(bob.doc('users/alice/follows/a').get());
   await assertSucceeds(
     env
@@ -81,7 +90,12 @@ test('Photo counts, private preferences/support, comments, and atomic auto-follo
   await assertFails(alice.doc('issues/wrong').set(wrongPath));
   const batch = alice.batch();
   batch.set(alice.doc('issues/auto'), report('alice', 'auto'));
-  batch.set(alice.doc('users/alice/follows/auto'), { createdAt: serverTimestamp() });
+  batch.set(alice.doc('users/alice/follows/auto'), {
+    createdAt: serverTimestamp(),
+    issueId: 'auto',
+    statusUpdates: true,
+    commentUpdates: false,
+  });
   await assertSucceeds(batch.commit());
   const preferences = { autoFollow: true, showResolved: false, defaultSeverity: 'High' };
   await assertSucceeds(alice.doc('users/alice/preferences/app').set(preferences));
@@ -108,6 +122,44 @@ test('Photo counts, private preferences/support, comments, and atomic auto-follo
   await assertSucceeds(bob.doc('issues/five/comments/a').get());
   await assertFails(bob.doc('issues/five/comments/a').delete());
   await assertSucceeds(alice.doc('issues/five/comments/a').delete());
+});
+test('notification inbox, push tokens, subscriptions and trusted metrics are isolated', async () => {
+  const alice = env.authenticatedContext('alice').firestore();
+  const bob = env.authenticatedContext('bob').firestore();
+  await env.withSecurityRulesDisabled(async (context) => {
+    await context
+      .firestore()
+      .doc('users/alice/notifications/n')
+      .set({ read: false, title: 'Update', issueId: 'a' });
+  });
+  await assertSucceeds(alice.doc('users/alice/notifications/n').update({ read: true }));
+  await assertFails(alice.doc('users/alice/notifications/n').update({ title: 'Spoofed' }));
+  await assertFails(bob.doc('users/alice/notifications/n').get());
+  await assertFails(alice.doc('users/alice/achievements/summary').set({ points: 999 }));
+  await assertFails(alice.doc('analytics/community').set({ total: 999 }));
+  await assertFails(alice.doc('integrationKeys/key').get());
+  await assertFails(alice.doc('moderationAudit/a').set({ action: 'delete' }));
+  const token = {
+    token: 'ExponentPushToken[test-token]',
+    platform: 'ios',
+    updatedAt: serverTimestamp(),
+  };
+  await assertSucceeds(alice.doc('users/alice/pushTokens/device').set(token));
+  await assertFails(bob.doc('users/alice/pushTokens/device').get());
+  await assertFails(
+    alice.doc('users/alice/pushTokens/invalid').set({ ...token, token: 'invalid' }),
+  );
+  await assertFails(
+    alice
+      .doc('users/alice/follows/a')
+      .set({
+        issueId: 'other',
+        createdAt: serverTimestamp(),
+        statusUpdates: true,
+        commentUpdates: true,
+      }),
+  );
+  await assertSucceeds(alice.doc('users/alice/follows/a').update({ commentUpdates: true }));
 });
 test('Realtime Database restricts presence to the current user', async () => {
   const alice = env.authenticatedContext('alice').database();
