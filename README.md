@@ -340,14 +340,6 @@ storage/
     ├── ... (up to photo-4.jpg)
     └── (all normalized to JPEG, size < 10MB)
 ```
-
-### Project Configuration
-- **Project ID**: `cityfix-community-20260908`
-- **Firestore Region**: `nam5` (North America)
-- **Storage Region**: US East
-- **Realtime DB**: Singapore
-- **Billing**: Enabled (production-ready)
-
 ---
 
 ## 📱 Platform-Specific Features
