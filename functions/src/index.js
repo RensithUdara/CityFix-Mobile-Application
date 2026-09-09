@@ -3,11 +3,15 @@ const { onCall, onRequest } = require('firebase-functions/v2/https');
 const { onDocumentWritten, onDocumentCreated } = require('firebase-functions/v2/firestore');
 const { onSchedule } = require('firebase-functions/v2/scheduler');
 const { db } = require('./shared');
+const webhooks = require('./webhooks');
+
 const { syncAnalytics } = require('./analytics');
 const { notifyFollowers, deliverPush, maintainPush } = require('./notifications');
 const moderation = require('./moderation');
 const integrations = require('./integrations');
 setGlobalOptions({ region: 'us-central1', maxInstances: 5, memory: '256MiB' });
+exports.searchIssues = onCall(require('./search').searchIssues);
+exports.manageWebhook = onCall(webhooks.manageWebhook);
 exports.flagIssue = onCall(moderation.flagIssue);
 exports.moderateIssue = onCall(moderation.moderateIssue);
 exports.createIntegrationKey = onCall(integrations.createIntegrationKey);
@@ -17,6 +21,12 @@ exports.issueChanged = onDocumentWritten(
   { document: 'issues/{issueId}', retry: true },
   async (event) => {
     await syncAnalytics(event.params.issueId);
+    await webhooks.queueWebhooks(
+      event.id,
+      event.params.issueId,
+      event.data.before.data(),
+      event.data.after.data(),
+    );
     const before = event.data.before.data(),
       after = event.data.after.data();
     if (before && after && before.status !== after.status)
@@ -59,3 +69,9 @@ exports.reconcileAnalytics = onSchedule(
     } while (cursor);
   },
 );
+
+exports.webhookQueued = onDocumentCreated(
+  { document: 'webhookDeliveries/{id}', retry: true },
+  (event) => webhooks.deliverWebhook(event.params.id),
+);
+exports.webhookMaintenance = onSchedule('every 5 minutes', webhooks.retryWebhooks);
