@@ -24,13 +24,15 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
     defaultValues: { title: '', description: '', address: '' },
   });
   const [category, setCategory] = useState<Category>('Roads');
-  const defaultSeverity = usePreferencesStore(s => s.defaultSeverity);
+  const defaultSeverity = usePreferencesStore((s) => s.defaultSeverity);
   const [severityTouched, setSeverityTouched] = useState(false);
   const [severity, setSeverity] = useState<NewIssue['severity']>(
     usePreferencesStore.getState().defaultSeverity,
   );
   const [photos, setPhotos] = useState<LocalPhoto[]>([]);
-  useEffect(() => { if (!severityTouched) setSeverity(defaultSeverity); }, [defaultSeverity, severityTouched]);
+  useEffect(() => {
+    if (!severityTouched) setSeverity(defaultSeverity);
+  }, [defaultSeverity, severityTouched]);
   const [progress, setProgress] = useState('');
   const [submittedId, setSubmittedId] = useState<string | null>(null);
   const [picking, setPicking] = useState(false);
@@ -101,7 +103,12 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
   });
   return (
     <Screen>
-      <ReportSuccess id={submittedId} onView={() => { if (submittedId) navigation.replace('IssueDetails', { id: submittedId }); }} />
+      <ReportSuccess
+        id={submittedId}
+        onView={() => {
+          if (submittedId) navigation.replace('IssueDetails', { id: submittedId });
+        }}
+      />
       <View style={{ maxWidth: 720, width: '100%', alignSelf: 'center', gap: 26 }}>
         <SectionHeader
           title="Let’s make it better."
@@ -170,7 +177,10 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
                 accessibilityRole="button"
                 accessibilityState={{ selected: severity === s }}
                 aria-selected={severity === s}
-                onPress={() => { setSeverityTouched(true); setSeverity(s); }}
+                onPress={() => {
+                  setSeverityTouched(true);
+                  setSeverity(s);
+                }}
                 style={[
                   styles.severity,
                   severity === s && { borderColor: colors.primary, backgroundColor: colors.pale },
