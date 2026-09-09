@@ -32,8 +32,6 @@ import { AnalyticsScreen } from '../screens/AnalyticsScreen';
 import { BadgesScreen } from '../screens/BadgesScreen';
 import { SubscriptionsScreen } from '../screens/SubscriptionsScreen';
 import { PushSettingsScreen } from '../screens/PushSettingsScreen';
-import { IntegrationsScreen } from '../screens/IntegrationsScreen';
-import { ModerationScreen } from '../screens/ModerationScreen';
 import { createNavigationContainerRef } from '@react-navigation/native';
 import { useNotificationStore } from '../store/notificationStore';
 const navigationRef = createNavigationContainerRef<RootStackParams>();
@@ -138,8 +136,6 @@ export function AppNavigator() {
             Badges: 'badges',
             Subscriptions: 'subscriptions',
             PushSettings: 'push-settings',
-            Integrations: 'integrations',
-            Moderation: 'moderation',
           },
         },
       }}
@@ -175,16 +171,6 @@ export function AppNavigator() {
               name="PushSettings"
               component={PushSettingsScreen}
               options={{ title: 'Push Settings' }}
-            />
-            <Stack.Screen
-              name="Integrations"
-              component={IntegrationsScreen}
-              options={{ title: 'Integrations' }}
-            />
-            <Stack.Screen
-              name="Moderation"
-              component={ModerationScreen}
-              options={{ title: 'Moderation' }}
             />
 
             <Stack.Screen
