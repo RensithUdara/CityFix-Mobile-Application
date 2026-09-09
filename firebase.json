@@ -1,5 +1,12 @@
 {
-  "functions": [{ "source": "functions", "codebase": "cityfix", "runtime": "nodejs22", "ignore": ["node_modules", "test", "*.log"] }],
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "cityfix",
+      "runtime": "nodejs22",
+      "ignore": ["node_modules", "test", "*.log"]
+    }
+  ],
   "firestore": {
     "rules": "firebase/firestore.rules",
     "indexes": "firebase/firestore.indexes.json"
