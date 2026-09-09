@@ -27,6 +27,16 @@ import { FAQScreen } from '../screens/FAQScreen';
 import { InformationScreen } from '../screens/InformationScreen';
 import { HelpSupportScreen } from '../screens/HelpSupportScreen';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SyncQueueScreen } from '../screens/SyncQueueScreen';
+import { AnalyticsScreen } from '../screens/AnalyticsScreen';
+import { BadgesScreen } from '../screens/BadgesScreen';
+import { SubscriptionsScreen } from '../screens/SubscriptionsScreen';
+import { PushSettingsScreen } from '../screens/PushSettingsScreen';
+import { IntegrationsScreen } from '../screens/IntegrationsScreen';
+import { ModerationScreen } from '../screens/ModerationScreen';
+import { createNavigationContainerRef } from '@react-navigation/native';
+import { useNotificationStore } from '../store/notificationStore';
+const navigationRef = createNavigationContainerRef<RootStackParams>();
 const Stack = createNativeStackNavigator<RootStackParams>();
 const Tab = createBottomTabNavigator<TabParams>();
 const icons: Record<keyof TabParams, IconName> = {
@@ -63,6 +73,16 @@ function Tabs() {
 }
 export function AppNavigator() {
   const { user, loading } = useAuthStore();
+  const pendingIssueId = useNotificationStore((s) => s.pendingIssueId);
+  const openNotification = () => {
+    if (user && pendingIssueId && navigationRef.isReady()) {
+      navigationRef.navigate('IssueDetails', { id: pendingIssueId });
+      useNotificationStore.setState({ pendingIssueId: null });
+    }
+  };
+  useEffect(() => {
+    openNotification();
+  }, [user, pendingIssueId]);
   const onboarding = useOnboarding();
   const ready = onboarding.ready && !loading;
   useEffect(() => {
@@ -82,6 +102,8 @@ export function AppNavigator() {
     );
   return (
     <NavigationContainer<RootStackParams>
+      ref={navigationRef}
+      onReady={openNotification}
       theme={{
         ...DefaultTheme,
         colors: {
@@ -111,6 +133,13 @@ export function AppNavigator() {
             Guidelines: 'guidelines',
             About: 'about',
             HelpSupport: 'help',
+            SyncQueue: 'sync-queue',
+            Analytics: 'analytics',
+            Badges: 'badges',
+            Subscriptions: 'subscriptions',
+            PushSettings: 'push-settings',
+            Integrations: 'integrations',
+            Moderation: 'moderation',
           },
         },
       }}
@@ -126,6 +155,38 @@ export function AppNavigator() {
         {user ? (
           <>
             <Stack.Screen name="Main" component={Tabs} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="SyncQueue"
+              component={SyncQueueScreen}
+              options={{ title: 'Sync Queue' }}
+            />
+            <Stack.Screen
+              name="Analytics"
+              component={AnalyticsScreen}
+              options={{ title: 'Analytics' }}
+            />
+            <Stack.Screen name="Badges" component={BadgesScreen} options={{ title: 'Badges' }} />
+            <Stack.Screen
+              name="Subscriptions"
+              component={SubscriptionsScreen}
+              options={{ title: 'Subscriptions' }}
+            />
+            <Stack.Screen
+              name="PushSettings"
+              component={PushSettingsScreen}
+              options={{ title: 'Push Settings' }}
+            />
+            <Stack.Screen
+              name="Integrations"
+              component={IntegrationsScreen}
+              options={{ title: 'Integrations' }}
+            />
+            <Stack.Screen
+              name="Moderation"
+              component={ModerationScreen}
+              options={{ title: 'Moderation' }}
+            />
+
             <Stack.Screen
               name="Report"
               component={ReportScreen}
