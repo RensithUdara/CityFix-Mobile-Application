@@ -12,6 +12,13 @@ export type RootStackParams = {
   Guidelines: undefined;
   About: undefined;
   HelpSupport: undefined;
+  SyncQueue: undefined;
+  Analytics: undefined;
+  Badges: undefined;
+  Subscriptions: undefined;
+  PushSettings: undefined;
+  Integrations: undefined;
+  Moderation: undefined;
 };
 export type TabParams = {
   Home: undefined;
