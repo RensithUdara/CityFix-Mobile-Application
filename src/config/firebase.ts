@@ -2,6 +2,7 @@ import { getApp, getApps, initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getDatabase } from 'firebase/database';
+import { getFunctions } from 'firebase/functions';
 import { initializeFirebaseAuth } from './firebaseAuth';
 
 const config = {
@@ -25,6 +26,7 @@ function initialize() {
     firestore: getFirestore(app),
     storage: getStorage(app),
     database: getDatabase(app),
+    functions: getFunctions(app, 'us-central1'),
   };
 }
 export function firebase() {
