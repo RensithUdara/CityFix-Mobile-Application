@@ -1,5 +1,10 @@
 import { useEffect, useState } from 'react';
-import { subscribeComments, postComment, deleteComment, IssueComment } from '../../services/comments';
+import {
+  subscribeComments,
+  postComment,
+  deleteComment,
+  IssueComment,
+} from '../../services/comments';
 import { Pressable, Text, View } from 'react-native';
 import { useAuthStore } from '../../store/authStore';
 import { colors } from '../../theme';
@@ -14,7 +19,10 @@ export function IssueDiscussion({ issueId }: { issueId: string }) {
   const [body, setBody] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  useEffect(() => subscribeComments(issueId, setComments, e => setError(errorMessage(e))), [issueId]);
+  useEffect(
+    () => subscribeComments(issueId, setComments, (e) => setError(errorMessage(e))),
+    [issueId],
+  );
   const post = async () => {
     if (!user || body.trim().length < 2) {
       setError('Write a comment of at least 2 characters.');
@@ -23,7 +31,11 @@ export function IssueDiscussion({ issueId }: { issueId: string }) {
     setBusy(true);
     setError('');
     try {
-      await postComment(issueId, body, profile?.displayName || user.displayName || 'Community member');
+      await postComment(
+        issueId,
+        body,
+        profile?.displayName || user.displayName || 'Community member',
+      );
       setBody('');
     } catch (e) {
       setError(errorMessage(e));
