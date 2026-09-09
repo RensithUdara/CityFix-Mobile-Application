@@ -12,6 +12,7 @@ import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { firebase } from '../config/firebase';
 import { Profile } from '../store/authStore';
 import { disconnectPresence } from './presence';
+import { disablePush } from './push';
 export async function register(email: string, password: string, displayName: string) {
   const { user } = await createUserWithEmailAndPassword(firebase().auth, email.trim(), password);
   await updateProfile(user, { displayName: displayName.trim() });
@@ -28,6 +29,7 @@ export async function resetPassword(email: string) {
   await sendPasswordResetEmail(firebase().auth, email.trim());
 }
 export async function logout() {
+  await disablePush();
   await disconnectPresence().catch(() => {});
   await signOut(firebase().auth);
 }
