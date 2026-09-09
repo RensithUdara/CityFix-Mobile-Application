@@ -28,6 +28,7 @@ CityFix is a community-driven mobile app that empowers citizens to report local 
 ## ✨ Features
 
 ### 📍 Core Functionality
+
 - **🚨 Issue Reporting** - Quick and easy reporting of local problems with photos and location
 - **📸 Photo Gallery** - Support for up to 5 photos per report with automatic compression
 - **🗺️ Interactive Maps** - Native maps on mobile (react-native-maps) and web (Leaflet/OpenStreetMap)
@@ -36,12 +37,14 @@ CityFix is a community-driven mobile app that empowers citizens to report local 
 - **❤️ Issue Following** - Follow issues you care about to get updates
 
 ### 🔐 Security & Privacy
+
 - **🛡️ Authentication** - Secure email/password authentication with Firebase Auth
 - **🔒 Private Data** - User profiles and preferences are private and secure
 - **📋 Firestore Rules** - Comprehensive security rules preventing unauthorized access
 - **🔑 Owner-based Access** - Photos and reports are only accessible to authorized users
 
 ### 🎨 User Experience
+
 - **📱 Cross-Platform** - Works on iOS, Android, and Web
 - **🌓 Clean Interface** - Intuitive and responsive design
 - **⌨️ Form Validation** - Real-time validation with helpful error messages
@@ -49,6 +52,7 @@ CityFix is a community-driven mobile app that empowers citizens to report local 
 - **⚡ Fast Performance** - Optimized for speed with local state management
 
 ### 🌍 Multi-Platform Support
+
 - **📱 iOS** - Native support with adaptive icons and tablet support
 - **🤖 Android** - Full Android support with predictive back gesture
 - **🌐 Web** - Full-featured web version with responsive design
@@ -69,12 +73,14 @@ Before you begin, ensure you have the following installed:
 ### Installation
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/RensithUdara/CityFix-Mobile-Application.git
    cd CityFix-Mobile-Application
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    # or
@@ -82,6 +88,7 @@ Before you begin, ensure you have the following installed:
    ```
 
 3. **Set up environment variables**
+
    ```bash
    # Create .env.local file with your Firebase configuration
    # Example:
@@ -255,6 +262,7 @@ CityFix/
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **React Native** (0.86.3) - Cross-platform mobile framework
 - **Expo** (57.0.20) - React Native development platform
 - **React** (19.2.3) - UI library
@@ -263,11 +271,13 @@ CityFix/
 - **Zustand** (5.0.15) - State management
 
 ### Maps & Location
+
 - **react-native-maps** (1.27.2) - Native maps for iOS/Android
 - **Leaflet** (1.9.4) - Interactive web maps
 - **expo-location** - GPS and location services
 
 ### Firebase Services
+
 - **Firebase** (12.18.0) - Backend-as-a-Service
   - 🔑 **Authentication** - Email/password auth
   - 💾 **Firestore** - NoSQL database for reports, issues, comments
@@ -275,19 +285,23 @@ CityFix/
   - 📊 **Realtime Database** - User presence tracking
 
 ### Media & Images
+
 - **expo-image-picker** - Camera and photo library access
 - **expo-image-manipulator** - Image compression and normalization
 - **@expo/vector-icons** - Icon library (Material, Feather, etc.)
 
 ### Forms & Input
+
 - **react-hook-form** (7.87.0) - Flexible form handling
 - **Field component** - Custom form field wrapper
 
 ### Testing
+
 - **Playwright** (1.63.0) - End-to-end testing
 - **Firebase Rules Unit Testing** (5.0.2) - Security rules validation
 
 ### Development Tools
+
 - **Prettier** (3.9.6) - Code formatting
 - **Node.js** (v18+) - Runtime environment
 
@@ -297,12 +311,12 @@ CityFix/
 
 ### Services Used
 
-| Service | Purpose | Security Level |
-|---------|---------|-----------------|
-| **Authentication** | Email/password identity, session persistence | ✅ Email verified before reporting |
-| **Firestore** | Issue reports, user profiles, comments, preferences | ✅ Rule-based access control |
-| **Storage** | Report photos (up to 5 per report, normalized JPEG) | ✅ Owner-only uploads/deletes |
-| **Realtime DB** | User presence/activity tracking | ✅ User-scoped private data |
+| Service            | Purpose                                             | Security Level                     |
+| ------------------ | --------------------------------------------------- | ---------------------------------- |
+| **Authentication** | Email/password identity, session persistence        | ✅ Email verified before reporting |
+| **Firestore**      | Issue reports, user profiles, comments, preferences | ✅ Rule-based access control       |
+| **Storage**        | Report photos (up to 5 per report, normalized JPEG) | ✅ Owner-only uploads/deletes      |
+| **Realtime DB**    | User presence/activity tracking                     | ✅ User-scoped private data        |
 
 ### Data Structure
 
@@ -340,11 +354,13 @@ storage/
     ├── ... (up to photo-4.jpg)
     └── (all normalized to JPEG, size < 10MB)
 ```
+
 ---
 
 ## 📱 Platform-Specific Features
 
 ### iOS
+
 - ✅ Tablet support enabled
 - ✅ Adaptive icons
 - ✅ Safe area handling
@@ -352,12 +368,14 @@ storage/
 - ✅ Location services
 
 ### Android
+
 - ✅ Adaptive icons with dynamic colors
 - ✅ Predictive back gesture (disabled for compatibility)
 - ✅ Full permission handling
 - ✅ Device storage access
 
 ### Web
+
 - ✅ Responsive design
 - ✅ Leaflet maps integration
 - ✅ Browser persistence for auth
@@ -368,11 +386,13 @@ storage/
 ## 🧪 Testing
 
 ### End-to-End Tests
+
 ```bash
 npm run test:e2e
 ```
 
 Playwright tests cover:
+
 - 🔐 Authentication flows
 - 📝 Issue creation and submission
 - 💬 Comments and interactions
@@ -380,11 +400,13 @@ Playwright tests cover:
 - ❤️ Follow/unfollow functionality
 
 ### Firebase Security Rules Tests
+
 ```bash
 npm run test:rules
 ```
 
 Tests verify:
+
 - ✅ Unauthorized access prevention
 - ✅ Ownership validation
 - ✅ Admin-only operations
@@ -394,6 +416,7 @@ Tests verify:
 ### Manual Testing Checklist
 
 #### Mobile (iOS/Android)
+
 - [ ] 📱 Install and launch on device
 - [ ] 📸 Test camera permissions and photo capture
 - [ ] 📍 Test GPS location access
@@ -402,6 +425,7 @@ Tests verify:
 - [ ] 📴 Test offline behavior
 
 #### Web
+
 - [ ] 🌐 Load in modern browsers (Chrome, Firefox, Safari, Edge)
 - [ ] 📱 Test responsive layout (mobile, tablet, desktop)
 - [ ] 🎨 Verify Leaflet map renders correctly
@@ -413,12 +437,14 @@ Tests verify:
 ## 🔐 Security
 
 ### Authentication
+
 - Email/password with Firebase Authentication
 - Persistent sessions using AsyncStorage (native) or browser storage (web)
 - Password reset via email
 - Email verification (recommended for production)
 
 ### Database Security
+
 - 🚫 **Default Deny** - All access denied by default
 - 👤 **User-Scoped Access** - Users can only read/modify their own data
 - 📝 **Report Ownership** - Only report owner can modify their report
@@ -426,6 +452,7 @@ Tests verify:
 - 📸 **Storage Path Validation** - Photos only in `issues/{uid}/{issueId}/`
 
 ### Data Validation
+
 - Form validation on client-side
 - Server-side Firestore rules enforcement
 - Photo size limits (< 10MB)
@@ -433,6 +460,7 @@ Tests verify:
 - Content type validation (JPEG only for storage)
 
 ### Environment & Secrets
+
 - ✅ No API keys hardcoded
 - ✅ Environment variables via `.env.local`
 - ✅ No service account keys in repository
@@ -443,25 +471,30 @@ Tests verify:
 ## 📚 Documentation
 
 ### Core Documentation
+
 - **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - Detailed system architecture, data flow, and design decisions
 - **[app.json](./app.json)** - Expo configuration and plugin setup
 - **[package.json](./package.json)** - Dependencies and scripts
 
 ### Component Documentation
+
 Each component follows this structure:
+
 ```typescript
 /**
  * ComponentName
- * 
+ *
  * Description of the component's purpose.
- * 
+ *
  * @props {Props} props - Component props
  * @returns {React.ReactNode} Rendered component
  */
 ```
 
 ### Service Documentation
+
 Services handle business logic and external integrations:
+
 - `services/auth.ts` - Authentication operations
 - `services/issues.ts` - CRUD operations for issues
 - `services/photoUpload.ts` - Photo processing and upload
@@ -473,6 +506,7 @@ Services handle business logic and external integrations:
 ## 🚀 Deployment
 
 ### Web Deployment
+
 ```bash
 # Build web version
 npm run build:web
@@ -484,16 +518,19 @@ npm run build:web
 ### Mobile Deployment
 
 #### iOS (TestFlight/App Store)
+
 1. Use Expo EAS Build for building
 2. Configure provisioning profiles
 3. Submit to App Store Connect
 
 #### Android (Google Play)
+
 1. Generate Android keystore
 2. Use Expo EAS Build
 3. Submit to Google Play Console
 
 ### Firebase Deployment
+
 ```bash
 # Deploy security rules
 firebase deploy --only firestore:rules,storage:rules,database:rules
@@ -509,6 +546,7 @@ firebase deploy
 ### Common Issues
 
 #### Build Issues
+
 ```bash
 # Clear cache and reinstall dependencies
 rm -rf node_modules
@@ -519,21 +557,24 @@ expo start --clear
 ```
 
 #### Firebase Connection Issues
+
 - ✅ Verify `.env.local` has correct Firebase config
 - ✅ Check Firebase project is active and billing enabled
 - ✅ Verify security rules allow your test user
 - ✅ Check network connectivity
 
 #### Map Display Issues
+
 - **Native Maps** (iOS/Android)
   - Verify Google Maps API key is configured
   - Check location permissions are granted
-  
+
 - **Web Maps** (Leaflet)
   - Verify OpenStreetMap tiles are accessible
   - Check browser console for CORS errors
 
 #### Photo Upload Issues
+
 - ✅ Verify storage permissions granted
 - ✅ Check file size < 10MB
 - ✅ Verify Firebase Storage rules allow uploads
@@ -567,6 +608,7 @@ We love contributions! Please follow these steps:
    - Test results
 
 ### Code Standards
+
 - ✅ Use TypeScript for all code
 - ✅ Run `npm run format` before committing
 - ✅ Run `npm run typecheck` to verify types
@@ -574,6 +616,7 @@ We love contributions! Please follow these steps:
 - ✅ Follow React and React Native best practices
 
 ### Commit Message Format
+
 ```
 type(scope): brief description
 
@@ -585,6 +628,7 @@ Fixes #issue_number
 Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 
 ### Getting Started with Contributions
+
 1. Fork: [github.com/RensithUdara/CityFix-Mobile-Application](https://github.com/RensithUdara/CityFix-Mobile-Application/fork)
 2. Clone your fork
 3. Create feature branch
@@ -595,6 +639,7 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 ## 📊 Performance
 
 ### Optimization Strategies
+
 - 🖼️ **Image Optimization** - Auto-compression to JPEG, max 5 photos
 - ⚡ **State Management** - Zustand for minimal bundle size
 - 📡 **Firestore Queries** - Indexed queries with limits for scalability
@@ -602,6 +647,7 @@ Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
 - 🎯 **Code Splitting** - Platform-specific files (`.native.ts`, `.web.ts`)
 
 ### Metrics
+
 - 📦 Bundle Size: ~500KB (optimized)
 - ⚡ Load Time: <2s (over 3G)
 - 🔋 Memory Usage: <100MB on mobile
@@ -630,9 +676,11 @@ copies of the Software...
 ## 👥 Authors & Contributors
 
 ### Core Team
+
 - **CityFix Team** - Initial development and architecture
 
 ### Contributors
+
 We welcome contributions from the community! See [CONTRIBUTING.md](#contributing) for guidelines.
 
 ---
@@ -650,18 +698,23 @@ We welcome contributions from the community! See [CONTRIBUTING.md](#contributing
 ## 📞 Support & Contact
 
 ### Get Help
+
 - 📧 **Email**: support@cityfix.communityRensithUdara/CityFix-Mobile-Application/issues/new)
 
 ### Feature Requests
+
 Have an idea? Share it via [GitHub Discussions](https://github.com/RensithUdara/CityFix-Mobile-Application/discussions) or [create a feature request](https://github.com/RensithUdara/CityFix-Mobile-Application/issues/new
 
 ### Report a Bug
+
 Found a bug? Please create an [issue on GitHub](https://github.com/yourorg/cityfix/issues/new?template=bug_report.md)
 
 ### Feature Requests
+
 Have an idea? Share it via [GitHub Discussions](#) or [create a feature request](https://github.com/yourorg/cityfix/issues/new?template=feature_request.md)
 
 ### Security Issues
+
 🔒 Please report security vulnerabilities responsibly to `security@cityfix.community` rather than public issues.
 
 ---
@@ -669,6 +722,7 @@ Have an idea? Share it via [GitHub Discussions](#) or [create a feature request]
 ## 📈 Roadmap
 
 ### Current Release (v1.0.0) ✅
+
 - [x] Core issue reporting
 - [x] Real-time comments
 - [x] Interactive maps
@@ -676,6 +730,7 @@ Have an idea? Share it via [GitHub Discussions](#) or [create a feature request]
 - [x] Firebase integration
 
 ### Upcoming Features 🚀
+
 - [ ] Push notifications
 - [ ] Offline support with sync queue
 - [ ] Server-side pagination
@@ -688,6 +743,7 @@ Have an idea? Share it via [GitHub Discussions](#) or [create a feature request]
 - [ ] Issue subscriptions
 
 ### Future Enhancements 💡
+
 - [ ] Mobile app distribution (App Store, Google Play)
 - [ ] Admin dashboard
 - [ ] Webhook integrations
