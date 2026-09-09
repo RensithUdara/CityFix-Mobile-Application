@@ -8,7 +8,8 @@ export async function uploadPreparedPhoto(target: StorageReference, uri: string,
     request.responseType = 'blob';
     request.timeout = 30000;
     request.onload = () => {
-      if ((request.status === 0 || request.status === 200) && request.response) resolve(request.response);
+      if ((request.status === 0 || request.status === 200) && request.response)
+        resolve(request.response);
       else reject(new Error('The selected photo could not be read. Please select it again.'));
     };
     request.onerror = () => reject(new Error('Unable to read the selected photo.'));
@@ -17,7 +18,8 @@ export async function uploadPreparedPhoto(target: StorageReference, uri: string,
     request.send();
   });
   try {
-    if (blob.size >= 10 * 1024 * 1024) throw new Error('The prepared photo is too large. Choose a smaller image.');
+    if (blob.size >= 10 * 1024 * 1024)
+      throw new Error('The prepared photo is too large. Choose a smaller image.');
     await uploadBytes(target, blob, { contentType: 'image/jpeg' });
   } finally {
     (blob as Blob & { close?: () => void }).close?.();

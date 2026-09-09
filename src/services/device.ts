@@ -24,16 +24,14 @@ export async function pickPhotos(
     ? await ImagePicker.launchCameraAsync(options)
     : await ImagePicker.launchImageLibraryAsync(options);
   if (result.canceled) return [];
-  return result.assets
-    .slice(0, remaining)
-    .map((asset, index) => ({
-      id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 7)}`,
-      uri: asset.uri,
-      width: asset.width,
-      height: asset.height,
-      mimeType: asset.mimeType,
-      fileName: asset.fileName ?? undefined,
-    }));
+  return result.assets.slice(0, remaining).map((asset, index) => ({
+    id: `${Date.now()}-${index}-${Math.random().toString(36).slice(2, 7)}`,
+    uri: asset.uri,
+    width: asset.width,
+    height: asset.height,
+    mimeType: asset.mimeType,
+    fileName: asset.fileName ?? undefined,
+  }));
 }
 export async function currentLocation() {
   const permission = await Location.requestForegroundPermissionsAsync();

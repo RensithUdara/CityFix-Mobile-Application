@@ -53,11 +53,16 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await expect(page.getByText('Add at least one photo before submitting.')).toBeVisible();
     await page.getByRole('button', { name: 'Upload photos', exact: true }).click();
     // Reproduce camera/library files whose MIME metadata is absent.
-    await (await chooser).setFiles({ name: 'mobile-photo.png', mimeType: '', buffer: readFileSync('assets/icon.png') });
+    await (
+      await chooser
+    ).setFiles({ name: 'mobile-photo.png', mimeType: '', buffer: readFileSync('assets/icon.png') });
     await expect(page.getByText('1 / 5 photos', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Submit report', exact: true }).click();
-    await expect(page.getByText('Report submitted!', { exact: true })).toBeVisible({ timeout: 60000 });
+    await expect(page.getByText('Report submitted!', { exact: true })).toBeVisible({
+      timeout: 60000,
+    });
     await expect(page.getByText(/^CF-/)).toBeVisible();
+    await page.screenshot({ path: 'test-results/submission-success.png', fullPage: true });
     await page.getByRole('button', { name: 'View my report', exact: true }).click();
     await page.waitForURL(/\/issue\//);
     resources.issueId = page.url().split('/issue/')[1];
@@ -68,9 +73,13 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     ).toBeVisible();
     await page.getByRole('button', { name: 'I noticed this too' }).click();
     await expect(page.getByRole('button', { name: 'Confirmed by you' })).toBeVisible();
-    await page.getByRole('textbox', { name: 'Add a comment', exact: true }).fill('Verified neighborhood detail from the first session.');
+    await page
+      .getByRole('textbox', { name: 'Add a comment', exact: true })
+      .fill('Verified neighborhood detail from the first session.');
     await page.getByRole('button', { name: 'Post comment', exact: true }).click();
-    await expect(page.getByText('Verified neighborhood detail from the first session.', { exact: true })).toBeVisible();
+    await expect(
+      page.getByText('Verified neighborhood detail from the first session.', { exact: true }),
+    ).toBeVisible();
     await page.getByRole('button', { name: 'Follow this issue', exact: true }).click();
     await expect(
       page.getByRole('button', { name: 'Following issue · Tap to unfollow' }),
@@ -88,7 +97,9 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await remote.getByRole('button', { name: 'Sign in', exact: true }).click();
     await expect(remote.getByText('Around your neighborhood')).toBeVisible();
     await remote.goto(`/issue/${resources.issueId}`, { waitUntil: 'domcontentloaded' });
-    await expect(remote.getByText('Verified neighborhood detail from the first session.', { exact: true })).toBeVisible();
+    await expect(
+      remote.getByText('Verified neighborhood detail from the first session.', { exact: true }),
+    ).toBeVisible();
     await expect(remote.getByRole('button', { name: 'Confirmed by you' })).toBeVisible();
     await remote.getByRole('button', { name: 'Confirmed by you' }).click();
     await expect(remote.getByRole('button', { name: 'I noticed this too' })).toBeVisible({
@@ -101,24 +112,49 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await page.goto('/settings', { waitUntil: 'domcontentloaded' });
     await page.getByRole('switch', { name: 'Follow my new reports', exact: true }).check();
     await page.getByRole('button', { name: 'Default severity High', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Default severity High', exact: true })).toHaveAttribute('aria-selected', 'true');
-    await expect(page.getByRole('button', { name: 'Default severity High', exact: true })).toBeEnabled();
+    await expect(
+      page.getByRole('button', { name: 'Default severity High', exact: true }),
+    ).toHaveAttribute('aria-selected', 'true');
+    await expect(
+      page.getByRole('button', { name: 'Default severity High', exact: true }),
+    ).toBeEnabled();
     await page.reload({ waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('switch', { name: 'Follow my new reports', exact: true })).toBeChecked();
-    await expect(page.getByRole('button', { name: 'Default severity High', exact: true })).toHaveAttribute('aria-selected', 'true');
+    await expect(
+      page.getByRole('switch', { name: 'Follow my new reports', exact: true }),
+    ).toBeChecked();
+    await expect(
+      page.getByRole('button', { name: 'Default severity High', exact: true }),
+    ).toHaveAttribute('aria-selected', 'true');
     await page.screenshot({ path: 'test-results/settings.png', fullPage: true });
     await page.goto('/report', { waitUntil: 'domcontentloaded' });
-    await expect(page.getByRole('button', { name: 'High', exact: true })).toHaveAttribute('aria-selected', 'true');
-    await page.getByRole('textbox', { name: 'Issue title', exact: true }).fill('Five photo integration verification');
-    await page.getByRole('textbox', { name: 'What’s happening?', exact: true }).fill('Temporary five photo report, removed after testing finishes.');
-    await page.getByRole('textbox', { name: 'Location', exact: true }).fill('Automated test location');
+    await expect(page.getByRole('button', { name: 'High', exact: true })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    await page
+      .getByRole('textbox', { name: 'Issue title', exact: true })
+      .fill('Five photo integration verification');
+    await page
+      .getByRole('textbox', { name: 'What’s happening?', exact: true })
+      .fill('Temporary five photo report, removed after testing finishes.');
+    await page
+      .getByRole('textbox', { name: 'Location', exact: true })
+      .fill('Automated test location');
     await page.context().grantPermissions(['geolocation']);
     await page.context().setGeolocation({ latitude: 6.12653, longitude: 80.12819 });
     await page.getByRole('button', { name: 'Use my current location', exact: true }).click();
     await expect(page.getByText('GPS coordinates attached.', { exact: true })).toBeVisible();
     const fiveChooser = page.waitForEvent('filechooser');
     await page.getByRole('button', { name: 'Upload photos', exact: true }).click();
-    await (await fiveChooser).setFiles(Array.from({ length: 5 }, (_, i) => ({ name: `photo-${i}.png`, mimeType: 'image/png', buffer: readFileSync(i === 4 ? 'assets/cityfix-logo.png' : 'assets/icon.png') })));
+    await (
+      await fiveChooser
+    ).setFiles(
+      Array.from({ length: 5 }, (_, i) => ({
+        name: `photo-${i}.png`,
+        mimeType: 'image/png',
+        buffer: readFileSync(i === 4 ? 'assets/cityfix-logo.png' : 'assets/icon.png'),
+      })),
+    );
     await expect(page.getByText('5 / 5 photos', { exact: true })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Add photos', exact: true })).toBeDisabled();
     await page.getByRole('button', { name: 'Use photo 5 as cover' }).click();
@@ -130,31 +166,53 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await expect(page.getByText('5 / 5 photos', { exact: true })).toBeVisible();
     await page.screenshot({ path: 'test-results/report-photos.png', fullPage: true });
     await page.getByRole('button', { name: 'Submit report', exact: true }).click();
-    await expect(page.getByText('Report submitted!', { exact: true })).toBeVisible({ timeout: 60000 });
+    await expect(page.getByText('Report submitted!', { exact: true })).toBeVisible({
+      timeout: 60000,
+    });
     await expect(page.getByText(/^CF-/)).toBeVisible();
     await page.getByRole('button', { name: 'View my report', exact: true }).click();
     await page.waitForURL(/\/issue\//, { timeout: 60000 });
-    await expect(page.getByRole('button', { name: 'Following issue · Tap to unfollow' })).toBeVisible();
+    await expect(
+      page.getByRole('button', { name: 'Following issue · Tap to unfollow' }),
+    ).toBeVisible();
     await page.getByRole('button', { name: 'View photo 5', exact: true }).click();
     await page.getByRole('button', { name: 'Open photo 5 full screen' }).click();
     await expect(page.getByText('Photo 5 of 5', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Next photo', exact: true }).click();
     await expect(page.getByText('Photo 1 of 5', { exact: true })).toBeVisible();
+    await expect
+      .poll(() =>
+        page
+          .getByTestId('fullscreen-photo')
+          .locator('img')
+          .evaluate((img: HTMLImageElement) => img.naturalWidth),
+      )
+      .toBeGreaterThan(0);
+    await page.screenshot({ path: 'test-results/gallery.png', fullPage: true });
     await page.getByRole('button', { name: 'Close photo viewer' }).click();
+    await expect(page.getByRole('button', { name: 'Close photo viewer' })).toBeHidden();
     await page.screenshot({ path: 'test-results/issue-details.png', fullPage: true });
     await page.goto('/map', { waitUntil: 'domcontentloaded' });
     await expect(page.getByLabel('Community issue map', { exact: true })).toBeVisible();
-    await page.getByRole('textbox', { name: 'Search the map', exact: true }).fill('Five photo integration');
+    await page
+      .getByRole('textbox', { name: 'Search the map', exact: true })
+      .fill('Five photo integration');
     await expect(page.getByRole('button', { name: 'View issue', exact: true })).toBeVisible();
     await expect(page.locator('.leaflet-interactive')).toHaveCount(1);
     await page.setViewportSize({ width: 390, height: 844 });
     await page.screenshot({ path: 'test-results/map-phone.png', fullPage: true });
     await page.setViewportSize({ width: 1280, height: 1000 });
     await page.goto('/help', { waitUntil: 'domcontentloaded' });
-    await page.getByRole('textbox', { name: 'Subject', exact: true }).fill('Integration support question');
-    await page.getByRole('textbox', { name: 'Your message', exact: true }).fill('Temporary support request for integration verification.');
+    await page
+      .getByRole('textbox', { name: 'Subject', exact: true })
+      .fill('Integration support question');
+    await page
+      .getByRole('textbox', { name: 'Your message', exact: true })
+      .fill('Temporary support request for integration verification.');
     await page.getByRole('button', { name: 'Submit support request', exact: true }).click();
-    await expect(page.getByText('Your request was submitted. You can find it below.')).toBeVisible();
+    await expect(
+      page.getByText('Your request was submitted. You can find it below.'),
+    ).toBeVisible();
     await expect(page.getByText('Integration support question', { exact: true })).toBeVisible();
     await page.goto('/profile', { waitUntil: 'domcontentloaded' });
     await expect(page.getByText('Connected', { exact: true })).toBeVisible();
