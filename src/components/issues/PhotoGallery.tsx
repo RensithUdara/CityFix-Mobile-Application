@@ -71,6 +71,8 @@ export function PhotoGallery({ photos }: { photos: ReportPhoto[] }) {
             </Pressable>
           </View>
           <Image
+            testID="fullscreen-photo"
+            accessibilityLabel={`Report photo ${index + 1}`}
             source={{ uri: photos[index].url }}
             resizeMode="contain"
             style={{ flex: 1, width: '100%' }}
