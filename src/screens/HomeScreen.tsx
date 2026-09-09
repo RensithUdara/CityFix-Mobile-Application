@@ -79,6 +79,18 @@ export function HomeScreen() {
             />
             <CommunityHero onReport={() => navigation.navigate('Report')} />
             <CommunityStats issues={issues} />
+            <Button
+              secondary
+              label="Community insights"
+              icon="bar-chart-2"
+              onPress={() => navigation.navigate('Analytics')}
+            />
+            <Button
+              secondary
+              label="Advanced search"
+              icon="search"
+              onPress={() => navigation.navigate('Search')}
+            />
             <SectionHeader
               title="Around your neighborhood"
               subtitle="Local issues. Collective action. Real change."
