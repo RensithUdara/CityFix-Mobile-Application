@@ -44,13 +44,13 @@ export const faqs = [
   {
     question: 'How do I follow updates?',
     answer:
-      'Open an issue and tap Follow this issue. Find followed issues in My activity. You can enable automatic following for your new reports in Settings. Statuses update while the app is open; background push notifications are not available yet.',
+      'Open an issue and tap Follow this issue. Find followed issues in My activity. You can enable automatic following for your new reports in Settings. Manage status and comment alerts in Settings ? Issue subscriptions. Device push alerts require a configured native build and notification permission.',
     category: 'Community',
   },
   {
     question: 'Can I submit a report offline?',
     answer:
-      'An internet connection is required to upload photos and submit reports. Do not close the form until you see the report details. A durable offline upload queue is not available yet.',
+      'Yes. Reports and photos are saved on this device first. Open Settings ? Upload queue to see pending reports, retry failures, or remove a draft. Uploads resume when the app is open and connected. A saved draft is not submitted until upload succeeds.',
     category: 'Reporting',
   },
   {
@@ -75,7 +75,7 @@ export const faqs = [
 export const privacySections = [
   {
     title: 'Information you provide',
-    text: 'CityFix stores your account email with Firebase Authentication, your profile name and neighborhood, reports, photos, report locations, confirmations, followed issues, comments, preferences, and support requests. Passwords are handled by Firebase Authentication and are not stored in CityFix profile documents.',
+    text: 'CityFix stores your account email with Firebase Authentication, your profile name and neighborhood, reports, photos, report locations, confirmations, followed issues, comments, preferences, support requests, notification tokens and inbox messages, API key metadata, and contribution badges. Pending reports and photos are stored locally until uploaded or removed. Passwords are handled by Firebase Authentication and are not stored in CityFix profile documents.',
   },
   {
     title: 'What the community can see',
@@ -87,11 +87,11 @@ export const privacySections = [
   },
   {
     title: 'How information is used',
-    text: 'Information supports account access, community reporting, live updates, confirmations, comments, your preferences, and support requests. Presence records indicate whether your app session is connected. This app does not currently include advertising or analytics SDKs.',
+    text: 'Information supports account access, community reporting, live updates, confirmations, comments, your preferences, and support requests. Presence records indicate whether your app session is connected. Server-side report totals and contribution statistics support community analytics and badges. This app does not include advertising SDKs.',
   },
   {
     title: 'Storage and service providers',
-    text: 'Firebase Authentication, Cloud Firestore, Firebase Storage, and Realtime Database process and store app data. Data may be processed outside your country. Native maps use platform map providers, and the web map uses OpenStreetMap. Opening maps or directions contacts those providers.',
+    text: 'Firebase Authentication, Cloud Firestore, Firebase Storage, and Realtime Database process and store app data. Data may be processed outside your country. Native maps use platform map providers, and the web map uses OpenStreetMap. Opening maps or directions contacts those providers. Native push messages are processed through Expo and the platform notification provider. Authorized integration keys can read report content and aggregate statistics through the API.',
   },
   {
     title: 'Your controls',
