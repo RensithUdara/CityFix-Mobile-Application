@@ -75,7 +75,7 @@ export const faqs = [
 export const privacySections = [
   {
     title: 'Information you provide',
-    text: 'CityFix stores your account email with Firebase Authentication, your profile name and neighborhood, reports, photos, report locations, confirmations, followed issues, comments, preferences, support requests, notification tokens and inbox messages, API key metadata, and contribution badges. Pending reports and photos are stored locally until uploaded or removed. Passwords are handled by Firebase Authentication and are not stored in CityFix profile documents.',
+    text: 'CityFix stores your account email with Firebase Authentication, your profile name, optional neighborhood, phone number, bio and profile photo, reports, photos, report locations, confirmations, followed issues, comments, preferences, support requests, notification tokens and inbox messages, API key metadata, and contribution badges. Pending reports and photos are stored locally until uploaded or removed. Passwords are handled by Firebase Authentication and are not stored in CityFix profile documents.',
   },
   {
     title: 'What the community can see',
@@ -83,7 +83,7 @@ export const privacySections = [
   },
   {
     title: 'Camera, photos, and location',
-    text: 'Camera access is requested when you take a photo. The photo picker lets you select images to attach. Location access is requested when you choose GPS; the app does not continuously track your location. Manually entered addresses do not receive a fabricated GPS pin.',
+    text: 'Camera access is requested when you take a photo. The photo picker lets you select images to attach. Location access is requested when you choose GPS; the app does not continuously track your location. Searching for a place sends your search text to the configured Photon geocoder. Selecting a suggestion or map pin attaches its coordinates; pin coordinates may be sent for address lookup. Editing the address clears the attached pin.',
   },
   {
     title: 'How information is used',
