@@ -42,3 +42,13 @@ firebase deploy --only "functions,firestore,storage" --force
 Functions run on Node 22 in `us-central1`, with a maximum of five instances per function. Scheduled tasks run push maintenance every five minutes and analytics reconciliation daily. Read [API.md](API.md) for integration usage.
 
 Tests: `node --test tests/sync-queue.cjs tests/native-upload.cjs`, `npm test --prefix functions`, `npm run test:rules`, and the opt-in live Playwright test. The backend emulator test requires `FIRESTORE_EMULATOR_HOST` and exercises real Firestore transactions and authorization handlers without sending push messages.
+
+## Report location picker
+
+The location field suggests real places through a Photon-compatible OpenStreetMap geocoder after a 650 ms debounce. Selecting a suggestion fills the address and coordinates. Editing the address clears the attached pin. Choose location on map opens a separate picker: tap or drag the pin, then press Use this location. Closing the picker discards that selection. GPS permission is requested only for the explicit current-location action. Reverse lookup fills a readable address; coordinates remain usable if lookup fails.
+
+`EXPO_PUBLIC_GEOCODER_URL` defaults to the Photon public demo. The demo is intended for reasonable light usage and has no availability guarantee; use a hosted/self-hosted Photon endpoint for production traffic. Search text and selected coordinates are sent to that provider. Maps use the existing native map provider and OpenStreetMap web tiles. This is not Google Places integration.
+
+## Optional profile details
+
+Users can upload, replace or remove a profile photo and optionally save a phone number and a bio (up to 500 characters). Neighborhood remains optional; display name retains its existing validation. Fields are private in `users/{uid}`. Photos use `profiles/{uid}/{unique-id}.jpg`, with owner-only Storage operations, JPEG content type and a 10 MB limit. Replacing a photo saves the new profile reference before removing the previous object. Firebase download links are bearer links: anyone given the URL may access the image. An interrupted upload can leave an unused object, so a periodic orphan cleanup is advisable for large deployments.
