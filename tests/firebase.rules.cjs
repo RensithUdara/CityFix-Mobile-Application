@@ -61,16 +61,18 @@ test('Firestore enforces ownership, profile isolation, confirmation integrity, a
   await assertFails(bob.doc('users/alice').get());
   await assertFails(alice.doc('users/alice').update({ admin: true }));
   await assertSucceeds(
-    alice
-      .doc('users/alice/follows/a')
-      .set({
-        createdAt: serverTimestamp(),
-        issueId: 'a',
-        statusUpdates: true,
-        commentUpdates: false,
-      }),
+    alice.doc('users/alice/follows/a').set({
+      createdAt: serverTimestamp(),
+      issueId: 'a',
+      statusUpdates: true,
+      commentUpdates: false,
+    }),
   );
   await assertFails(bob.doc('users/alice/follows/a').get());
+  await assertFails(alice.doc('admin/alice').set({ active: true, role: 'admin' }));
+  await env.withSecurityRulesDisabled(async (context) => {
+    await context.firestore().doc('admin/moderator').set({ active: true, role: 'admin' });
+  });
   await assertSucceeds(
     env
       .authenticatedContext('moderator', { admin: true })
@@ -150,14 +152,12 @@ test('notification inbox, push tokens, subscriptions and trusted metrics are iso
     alice.doc('users/alice/pushTokens/invalid').set({ ...token, token: 'invalid' }),
   );
   await assertFails(
-    alice
-      .doc('users/alice/follows/a')
-      .set({
-        issueId: 'other',
-        createdAt: serverTimestamp(),
-        statusUpdates: true,
-        commentUpdates: true,
-      }),
+    alice.doc('users/alice/follows/a').set({
+      issueId: 'other',
+      createdAt: serverTimestamp(),
+      statusUpdates: true,
+      commentUpdates: true,
+    }),
   );
   await assertSucceeds(alice.doc('users/alice/follows/a').update({ commentUpdates: true }));
 });
@@ -201,4 +201,37 @@ test('Storage rejects unauthenticated, cross-account, non-image, and oversized u
   await assertFails(
     alice.ref('issues/alice/five/photo-5.jpg').put(bytes, { contentType: 'image/jpeg' }),
   );
+});
+
+test('optional profile fields and profile photos remain owner scoped', async () => {
+  const alice = env.authenticatedContext('alice').firestore(),
+    bob = env.authenticatedContext('bob').firestore();
+  await assertSucceeds(
+    alice.doc('users/alice').set({ displayName: 'Alice', neighborhood: '', phone: '', bio: '' }),
+  );
+  await assertSucceeds(
+    alice
+      .doc('users/alice')
+      .update({
+        phone: '+94 123456789',
+        bio: 'My neighborhood',
+        photoURL: 'https://firebasestorage.googleapis.com/example',
+        photoPath: 'profiles/alice/avatar.jpg',
+      }),
+  );
+  await assertFails(bob.doc('users/alice').get());
+  await assertFails(alice.doc('users/alice').update({ bio: 'x'.repeat(501) }));
+  await assertFails(alice.doc('users/alice').update({ phone: 123 }));
+  await assertFails(alice.doc('users/alice').update({ photoPath: 'profiles/bob/avatar.jpg' }));
+  await assertFails(alice.doc('users/alice').update({ role: 'admin' }));
+  const a = env.authenticatedContext('alice').storage(),
+    b = env.authenticatedContext('bob').storage();
+  const bytes = new Uint8Array([1, 2, 3]);
+  await assertSucceeds(
+    a.ref('profiles/alice/avatar.jpg').put(bytes, { contentType: 'image/jpeg' }),
+  );
+  await assertFails(b.ref('profiles/alice/avatar.jpg').getMetadata());
+  await assertFails(b.ref('profiles/alice/avatar.jpg').put(bytes, { contentType: 'image/jpeg' }));
+  await assertFails(a.ref('profiles/alice/avatar.jpg').put(bytes, { contentType: 'text/plain' }));
+  await assertSucceeds(a.ref('profiles/alice/avatar.jpg').delete());
 });
