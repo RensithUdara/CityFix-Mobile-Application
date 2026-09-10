@@ -1,3 +1,4 @@
+import { LocationPicker } from '../components/map/LocationPicker';
 import { useEffect, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Controller, useForm } from 'react-hook-form';
@@ -11,7 +12,7 @@ import { Icon } from '../components/ui/Icon';
 import { CategoryFilter } from '../components/issues/CategoryFilter';
 import { submitOrQueue } from '../services/syncQueue';
 import { Category, NewIssue } from '../types/issue';
-import { currentLocation, pickPhotos } from '../services/device';
+import { pickPhotos } from '../services/device';
 import { LocalPhoto, MAX_REPORT_PHOTOS } from '../types/photo';
 import { PhotoPicker } from '../components/issues/PhotoPicker';
 import { ReportSuccess } from '../components/issues/ReportSuccess';
@@ -20,7 +21,7 @@ import { errorMessage } from '../utils/errors';
 import { colors } from '../theme';
 type FormData = Pick<NewIssue, 'title' | 'description' | 'address'>;
 export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackParams, 'Report'>) {
-  const { control, handleSubmit, setValue } = useForm<FormData>({
+  const { control, handleSubmit } = useForm<FormData>({
     defaultValues: { title: '', description: '', address: '' },
   });
   const [category, setCategory] = useState<Category>('Roads');
@@ -41,8 +42,6 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
     longitude: null,
   });
   const [submitting, setSubmitting] = useState(false);
-  const [located, setLocated] = useState(false);
-  const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [queued, setQueued] = useState(false);
   const choosePhoto = async (camera: boolean) => {
@@ -55,22 +54,6 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
       setError(e instanceof Error ? e.message : 'Unable to select photo. Please try again.');
     } finally {
       setPicking(false);
-    }
-  };
-  const locate = async () => {
-    setBusy(true);
-    setError('');
-    try {
-      const result = await currentLocation();
-      setCoords(result);
-      setLocated(true);
-      setValue('address', `${result.latitude.toFixed(5)}, ${result.longitude.toFixed(5)}`, {
-        shouldValidate: true,
-      });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unable to find your location.');
-    } finally {
-      setBusy(false);
     }
   };
   const submit = handleSubmit(async (data) => {
@@ -215,34 +198,22 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
           name="address"
           rules={{ validate: (v) => v.trim().length >= 5 || 'Please enter a street or location.' }}
           render={({ field, fieldState }) => (
-            <Field
-              label="Location"
-              maxLength={300}
-              placeholder="Street, area, or nearest landmark"
+            <LocationPicker
               value={field.value}
-              onChangeText={field.onChange}
+              point={
+                coords.latitude != null && coords.longitude != null
+                  ? { latitude: coords.latitude, longitude: coords.longitude }
+                  : null
+              }
+              disabled={submitting}
               error={fieldState.error?.message}
+              onChange={(address, point) => {
+                field.onChange(address);
+                setCoords(point || { latitude: null, longitude: null });
+              }}
             />
           )}
         />
-        <Button
-          secondary
-          icon="navigation"
-          label={
-            busy
-              ? 'Finding your location…'
-              : located
-                ? 'Update GPS location'
-                : 'Use my current location'
-          }
-          onPress={locate}
-          disabled={busy}
-        />
-        <Text style={styles.hint}>
-          {located
-            ? 'GPS coordinates attached.'
-            : 'Without GPS, your address is saved without a map pin.'}
-        </Text>
         {!!error && (
           <Text accessibilityRole="alert" style={{ color: colors.danger }}>
             {error}
@@ -252,7 +223,7 @@ export function ReportScreen({ navigation }: NativeStackScreenProps<RootStackPar
           icon="plus-circle"
           label={submitting ? progress || 'Preparing photos…' : 'Submit report'}
           onPress={submit}
-          disabled={busy || submitting || picking || !!submittedId}
+          disabled={submitting || picking || !!submittedId}
         />
         <Text style={[styles.hint, { textAlign: 'center', lineHeight: 20 }]}>
           Reports are shared with the CityFix community.
