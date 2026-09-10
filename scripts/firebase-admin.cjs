@@ -134,6 +134,17 @@ async function main() {
         'DELETE',
       );
     }
+    const profilePrefix = `profiles/${manifest.uid}/`;
+    const avatars = await request(
+      `https://storage.googleapis.com/storage/v1/b/${bucket}/o?prefix=${encodeURIComponent(profilePrefix)}`,
+    );
+    for (const item of avatars.items || []) {
+      if (!item.name.startsWith(profilePrefix)) throw new Error('Unexpected profile storage path.');
+      await request(
+        `https://storage.googleapis.com/storage/v1/b/${bucket}/o/${encodeURIComponent(item.name)}`,
+        'DELETE',
+      );
+    }
     await request(
       `https://${project}-default-rtdb.asia-southeast1.firebasedatabase.app/presence/${manifest.uid}.json`,
       'DELETE',
