@@ -20,15 +20,37 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
   };
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
+  // Deterministic address provider responses; Firebase operations remain live.
+  await page.route('https://photon.komoot.io/**', async (route) => {
+    const reverse = route.request().url().includes('/reverse');
+    await route.fulfill({
+      json: {
+        features: [
+          {
+            geometry: { coordinates: [80.217, 6.033] },
+            properties: {
+              name: reverse ? 'Pinned test location' : 'Galle test landmark',
+              city: 'Galle',
+              country: 'Sri Lanka',
+              osm_id: 1,
+              osm_type: 'N',
+            },
+          },
+        ],
+      },
+    });
+  });
   try {
     await page.goto('/', { waitUntil: 'domcontentloaded' });
     await page.getByRole('button', { name: 'Skip onboarding' }).click();
-    await page.getByRole('button', { name: 'Create an account', exact: true }).click();
+    await page.getByRole('link', { name: 'Create an account', exact: true }).click();
     await page
       .getByRole('textbox', { name: 'Full name', exact: true })
       .fill('CityFix Integration Test');
     await page.getByRole('textbox', { name: 'Email', exact: true }).fill(email);
     await page.getByRole('textbox', { name: 'Password', exact: true }).fill(password);
+    await page.getByLabel('Confirm password', { exact: true }).fill(password);
+    await page.getByRole('checkbox', { name: 'Accept Privacy policy' }).check();
     const signup = page.waitForResponse((response) => response.url().includes('accounts:signUp'));
     await page.getByRole('button', { name: 'Create account', exact: true }).click();
     const response = await signup;
@@ -48,6 +70,37 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await page
       .getByRole('textbox', { name: 'Location', exact: true })
       .fill('Automated test location');
+    await page.getByRole('textbox', { name: 'Location', exact: true }).fill('Galle');
+    await page
+      .getByRole('button', {
+        name: 'Select location Galle test landmark, Galle, Sri Lanka',
+        exact: true,
+      })
+      .click();
+    await expect(page.getByRole('textbox', { name: 'Location', exact: true })).toHaveValue(
+      'Galle test landmark, Galle, Sri Lanka',
+    );
+    await page.getByRole('button', { name: 'Choose location on map', exact: true }).click();
+    const pickerMap = page.getByLabel('Choose report location on map', { exact: true });
+    await pickerMap.click({ position: { x: 170, y: 160 } });
+    await expect(
+      page.getByText('Pinned test location, Galle, Sri Lanka', { exact: true }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Close location picker', exact: true }).click();
+    await expect(page.getByRole('textbox', { name: 'Location', exact: true })).toHaveValue(
+      'Galle test landmark, Galle, Sri Lanka',
+    );
+    await page.getByRole('button', { name: 'Choose location on map', exact: true }).click();
+    await pickerMap.click({ position: { x: 190, y: 180 } });
+    await expect(
+      page.getByText('Pinned test location, Galle, Sri Lanka', { exact: true }),
+    ).toBeVisible();
+    await page.getByRole('button', { name: 'Use this location', exact: true }).click();
+    await expect(page.getByRole('textbox', { name: 'Location', exact: true })).toHaveValue(
+      'Pinned test location, Galle, Sri Lanka',
+    );
+    await page.getByRole('textbox', { name: 'Location', exact: true }).fill('Manual location');
+    await expect(page.getByRole('link', { name: 'Remove map pin', exact: true })).toHaveCount(0);
     const chooser = page.waitForEvent('filechooser');
     await page.getByRole('button', { name: 'Submit report', exact: true }).click();
     await expect(page.getByText('Add at least one photo before submitting.')).toBeVisible();
@@ -202,6 +255,14 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await page.setViewportSize({ width: 390, height: 844 });
     await page.screenshot({ path: 'test-results/map-phone.png', fullPage: true });
     await page.setViewportSize({ width: 1280, height: 1000 });
+    await page.goto('/search', { waitUntil: 'domcontentloaded' });
+    await page
+      .getByRole('textbox', { name: 'Search all reports', exact: true })
+      .fill('CF-' + resources.issueId);
+    await page.getByRole('button', { name: 'Search reports', exact: true }).click();
+    await expect(page.getByText('CityFix integration verification', { exact: true })).toBeVisible({
+      timeout: 60000,
+    });
     await page.goto('/help', { waitUntil: 'domcontentloaded' });
     await page
       .getByRole('textbox', { name: 'Subject', exact: true })
@@ -219,13 +280,42 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await page
       .getByRole('textbox', { name: 'Neighborhood', exact: true })
       .fill('Integration test neighborhood');
+    await page
+      .getByRole('textbox', { name: 'Phone number (optional)', exact: true })
+      .fill('+94 770000000');
+    await page
+      .getByRole('textbox', { name: 'About you (optional)', exact: true })
+      .fill('Temporary profile details.');
+    const avatarChooser = page.waitForEvent('filechooser');
+    await page.getByRole('button', { name: 'Change profile photo', exact: true }).click();
+    await (await avatarChooser).setFiles('assets/icon.png');
+    await expect(page.getByLabel('Your profile photo', { exact: true })).toBeVisible({
+      timeout: 60000,
+    });
+    await expect(
+      page.getByRole('textbox', { name: 'About you (optional)', exact: true }),
+    ).toHaveValue('Temporary profile details.');
     await page.getByRole('button', { name: 'Save profile', exact: true }).click();
     await expect(page.getByText('Profile updated.')).toBeVisible();
     await page.reload({ waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('textbox', { name: 'Neighborhood', exact: true })).toHaveValue(
       'Integration test neighborhood',
     );
+    await expect(
+      page.getByRole('textbox', { name: 'Phone number (optional)', exact: true }),
+    ).toHaveValue('+94 770000000');
+    await expect(
+      page.getByRole('textbox', { name: 'About you (optional)', exact: true }),
+    ).toHaveValue('Temporary profile details.');
+    await expect(page.getByLabel('Your profile photo', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Remove photo', exact: true }).click();
+    await expect(page.getByLabel('Your profile photo', { exact: true })).toHaveCount(0);
     await page.getByRole('button', { name: 'Log out', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Log out of CityFix?' })).toBeVisible();
+    await page.getByRole('button', { name: 'Stay signed in', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Save profile', exact: true })).toBeVisible();
+    await page.getByRole('button', { name: 'Log out', exact: true }).click();
+    await page.getByRole('button', { name: 'Yes, log out', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible();
     expect(errors).toEqual([]);
   } finally {
