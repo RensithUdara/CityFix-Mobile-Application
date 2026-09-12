@@ -7,9 +7,11 @@ import { BrandLogo } from '../branding/BrandLogo';
 export function HomeHeader({
   onNotifications,
   onProfile,
+  onEditNeighborhood,
 }: {
   onNotifications: () => void;
   onProfile: () => void;
+  onEditNeighborhood: () => void;
 }) {
   const { user, profile } = useAuthStore();
   return (
@@ -18,13 +20,20 @@ export function HomeHeader({
         <BrandLogo size={65} />
       </View>
       <View style={styles.right}>
-        <View style={styles.location}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={
+            profile?.neighborhood ? 'Edit your neighborhood' : 'Set your neighborhood'
+          }
+          onPress={onEditNeighborhood}
+          style={styles.location}
+        >
           <Text style={styles.eyebrow}>YOUR NEIGHBORHOOD</Text>
           <View style={{ flexDirection: 'row', gap: 5, alignItems: 'center' }}>
             <Icon name="map-pin" size={12} color={colors.primary} />
             <Text style={styles.place}>{profile?.neighborhood || 'Set your neighborhood'}</Text>
           </View>
-        </View>
+        </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Notifications"
@@ -61,7 +70,7 @@ const styles = StyleSheet.create({
   },
   wordmark: { fontSize: 27, fontWeight: '800', letterSpacing: -1.5, color: colors.ink },
   right: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  location: { gap: 5 },
+  location: { gap: 5, minHeight: 44, justifyContent: 'center' },
   eyebrow: { fontSize: 7, color: colors.muted, letterSpacing: 1.2, fontWeight: '600' },
   place: { fontSize: 10, fontWeight: '600', color: colors.ink },
   bell: { padding: 9, position: 'relative' },
