@@ -76,6 +76,7 @@ export function HomeScreen() {
             <HomeHeader
               onNotifications={() => navigation.navigate('Notifications')}
               onProfile={() => navigation.navigate('Profile')}
+              onEditNeighborhood={() => navigation.navigate('EditProfile')}
             />
             <CommunityHero onReport={() => navigation.navigate('Report')} />
             <CommunityStats issues={issues} />
