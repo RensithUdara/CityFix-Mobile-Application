@@ -277,6 +277,8 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await expect(page.getByText('Integration support question', { exact: true })).toBeVisible();
     await page.goto('/profile', { waitUntil: 'domcontentloaded' });
     await expect(page.getByText('Connected', { exact: true })).toBeVisible();
+    await expect(page.getByRole('textbox')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Edit profile', exact: true }).click();
     await page
       .getByRole('textbox', { name: 'Neighborhood', exact: true })
       .fill('Integration test neighborhood');
@@ -289,7 +291,9 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     const avatarChooser = page.waitForEvent('filechooser');
     await page.getByRole('button', { name: 'Change profile photo', exact: true }).click();
     await (await avatarChooser).setFiles('assets/icon.png');
-    await expect(page.getByLabel('Your profile photo', { exact: true })).toBeVisible({
+    await expect(
+      page.getByLabel('Your profile photo', { exact: true }).filter({ visible: true }),
+    ).toBeVisible({
       timeout: 60000,
     });
     await expect(
@@ -307,13 +311,20 @@ test('live Firebase signup, profile, photo upload, report, realtime, follow, per
     await expect(
       page.getByRole('textbox', { name: 'About you (optional)', exact: true }),
     ).toHaveValue('Temporary profile details.');
-    await expect(page.getByLabel('Your profile photo', { exact: true })).toBeVisible();
+    await expect(
+      page.getByLabel('Your profile photo', { exact: true }).filter({ visible: true }),
+    ).toBeVisible();
     await page.getByRole('button', { name: 'Remove photo', exact: true }).click();
-    await expect(page.getByLabel('Your profile photo', { exact: true })).toHaveCount(0);
+    await expect(
+      page.getByLabel('Your profile photo', { exact: true }).filter({ visible: true }),
+    ).toHaveCount(0);
+    await page.goto('/profile', { waitUntil: 'domcontentloaded' });
+    await expect(page.getByText('Temporary profile details.', { exact: true })).toHaveCount(0);
+    await expect(page.getByRole('textbox')).toHaveCount(0);
     await page.getByRole('button', { name: 'Log out', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Log out of CityFix?' })).toBeVisible();
     await page.getByRole('button', { name: 'Stay signed in', exact: true }).click();
-    await expect(page.getByRole('button', { name: 'Save profile', exact: true })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Edit profile', exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Log out', exact: true }).click();
     await page.getByRole('button', { name: 'Yes, log out', exact: true }).click();
     await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible();
