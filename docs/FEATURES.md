@@ -52,3 +52,5 @@ The location field suggests real places through a Photon-compatible OpenStreetMa
 ## Optional profile details
 
 Users can upload, replace or remove a profile photo and optionally save a phone number and a bio (up to 500 characters). Neighborhood remains optional; display name retains its existing validation. Fields are private in `users/{uid}`. Photos use `profiles/{uid}/{unique-id}.jpg`, with owner-only Storage operations, JPEG content type and a 10 MB limit. Replacing a photo saves the new profile reference before removing the previous object. Firebase download links are bearer links: anyone given the URL may access the image. An interrupted upload can leave an unused object, so a periodic orphan cleanup is advisable for large deployments.
+
+The mobile Profile tab displays saved details and the avatar. Edit profile opens a dedicated screen at /profile/edit for photo changes and optional details. Photo changes save immediately; Save profile saves the text fields. Photo updates preserve unsaved text in the edit form.
