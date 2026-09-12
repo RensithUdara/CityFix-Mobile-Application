@@ -1,12 +1,14 @@
 import { Text, TextInput, TextInputProps, View, StyleSheet } from 'react-native';
 import { colors } from '../../theme';
-import { ReactNode } from 'react';
+import { ReactNode, useContext } from 'react';
+import { FieldFocusContext } from './Screen';
 export function Field({
   label,
   error,
   rightAccessory,
   ...props
 }: TextInputProps & { label: string; error?: string; rightAccessory?: ReactNode }) {
+  const reveal = useContext(FieldFocusContext);
   return (
     <View style={{ gap: 9 }}>
       <Text style={styles.label}>{label}</Text>
@@ -15,6 +17,10 @@ export function Field({
           accessibilityLabel={label}
           placeholderTextColor={colors.muted}
           {...props}
+          onFocus={(event) => {
+            props.onFocus?.(event);
+            reveal();
+          }}
           style={[
             styles.input,
             props.multiline && { minHeight: 110, textAlignVertical: 'top' },
