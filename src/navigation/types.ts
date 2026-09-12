@@ -7,6 +7,7 @@ export type RootStackParams = {
   Notifications: undefined;
   Auth: undefined;
   Settings: undefined;
+  EditProfile: undefined;
   Security: undefined;
   FAQ: undefined;
   Privacy: undefined;
