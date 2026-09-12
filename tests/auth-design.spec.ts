@@ -52,6 +52,14 @@ test('auth links, password visibility, confirmation and privacy checkbox on phon
     page.getByRole('heading', { name: 'Reset your password', exact: true }),
   ).toBeVisible();
   await expect(page.getByRole('link', { name: 'Back to sign in', exact: true })).toBeVisible();
+  await page.route('**/accounts:sendOobCode*', (route) =>
+    route.fulfill({ json: { email: 'neighbor@example.com' } }),
+  );
+  await page.getByLabel('Email', { exact: true }).fill('neighbor@example.com');
+  await page.getByRole('button', { name: 'Send reset email', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeVisible();
   await page.screenshot({ path: 'test-results/auth-reset.png', fullPage: true });
+  await page.getByRole('button', { name: 'Done', exact: true }).click();
+  await expect(page.getByRole('heading', { name: 'Check your inbox' })).toBeHidden();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
