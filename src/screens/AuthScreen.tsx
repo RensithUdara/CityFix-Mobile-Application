@@ -1,5 +1,6 @@
+import { ResetEmailDialog } from '../components/auth/ResetEmailDialog';
 import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Button } from '../components/ui/Button';
 import { Field } from '../components/ui/Field';
 import { PasswordField } from '../components/auth/PasswordField';
@@ -49,6 +50,7 @@ export function AuthScreen() {
     [busy, setBusy] = useState(false),
     [message, setMessage] = useState(''),
     [success, setSuccess] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
   const changeMode = (next: Mode) => {
     setMode(next);
     setMessage('');
@@ -76,8 +78,8 @@ export function AuthScreen() {
       else if (mode === 'login') await login(email, password);
       else {
         await resetPassword(email);
-        setSuccess(true);
-        setMessage('If an account exists, a password reset email will arrive shortly.');
+        Keyboard.dismiss();
+        setResetEmail(email.trim());
       }
     } catch (error) {
       setMessage(errorMessage(error));
@@ -87,6 +89,14 @@ export function AuthScreen() {
   };
   return (
     <Screen>
+      <ResetEmailDialog
+        email={resetEmail}
+        onClose={() => setResetEmail('')}
+        onSignIn={() => {
+          setResetEmail('');
+          changeMode('login');
+        }}
+      />
       <View style={styles.page}>
         <View style={styles.topbar}>
           <View style={styles.logo}>
@@ -114,7 +124,7 @@ export function AuthScreen() {
             {mode === 'register'
               ? 'Small actions make a better city. Create your account to get started.'
               : mode === 'reset'
-                ? 'Enter your email and we’ll send you a link to choose a new password.'
+                ? 'Enter your email and weâ€™ll send you a link to choose a new password.'
                 : 'A better neighborhood starts with you. Sign in to report, follow, and make a difference.'}
           </Text>
         </View>
@@ -217,7 +227,7 @@ export function AuthScreen() {
           <Button
             label={
               busy
-                ? 'Please wait…'
+                ? 'Please waitâ€¦'
                 : mode === 'register'
                   ? 'Create account'
                   : mode === 'reset'
