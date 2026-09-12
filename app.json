@@ -10,12 +10,18 @@
       "supportsTablet": true
     },
     "android": {
+      "package": "com.rensithudara.cityfix",
+      "versionCode": 3,
       "adaptiveIcon": {
         "backgroundColor": "#FFFFFF",
         "foregroundImage": "./assets/cityfix-logo.png"
       },
       "softwareKeyboardLayoutMode": "resize",
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
     "web": {
       "favicon": "./assets/cityfix-logo.png"
@@ -46,6 +52,12 @@
         }
       ],
       "expo-notifications"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "a18826ae-73d5-4662-ad88-1beb426532c9"
+      }
+    },
+    "owner": "rensithudara"
   }
 }
