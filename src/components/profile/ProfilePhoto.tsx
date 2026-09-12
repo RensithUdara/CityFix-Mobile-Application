@@ -8,9 +8,11 @@ import { colors } from '../../theme';
 import { Icon } from '../ui/Icon';
 export function ProfilePhoto({
   disabled = false,
+  readOnly = false,
   onBusyChange,
 }: {
   disabled?: boolean;
+  readOnly?: boolean;
   onBusyChange?: (busy: boolean) => void;
 }) {
   const { profile, user } = useAuthStore();
@@ -57,19 +59,21 @@ export function ProfilePhoto({
           </Text>
         )}
       </View>
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel="Change profile photo"
-        disabled={disabled || busy}
-        onPress={() => void change()}
-        style={{ flexDirection: 'row', gap: 8, padding: 12 }}
-      >
-        <Icon name="camera" size={17} color={colors.primary} />
-        <Text style={{ color: colors.primary, fontWeight: '700' }}>
-          {busy ? 'Saving photo…' : profile?.photoURL ? 'Change photo' : 'Add profile photo'}
-        </Text>
-      </Pressable>
-      {!!profile?.photoURL && (
+      {!readOnly && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Change profile photo"
+          disabled={disabled || busy}
+          onPress={() => void change()}
+          style={{ flexDirection: 'row', gap: 8, padding: 12 }}
+        >
+          <Icon name="camera" size={17} color={colors.primary} />
+          <Text style={{ color: colors.primary, fontWeight: '700' }}>
+            {busy ? 'Saving photoâ€¦' : profile?.photoURL ? 'Change photo' : 'Add profile photo'}
+          </Text>
+        </Pressable>
+      )}
+      {!readOnly && !!profile?.photoURL && (
         <Pressable
           accessibilityRole="button"
           disabled={disabled || busy}
