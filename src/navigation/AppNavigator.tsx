@@ -6,6 +6,7 @@ import { RootStackParams, TabParams } from './types';
 import { HomeScreen } from '../screens/HomeScreen';
 import { MapScreen } from '../screens/MapScreen';
 import { ActivityScreen } from '../screens/ActivityScreen';
+import { EditProfileScreen } from '../screens/EditProfileScreen';
 import { ProfileScreen } from '../screens/ProfileScreen';
 import { ReportScreen } from '../screens/ReportScreen';
 import { IssueDetailsScreen } from '../screens/IssueDetailsScreen';
@@ -127,6 +128,7 @@ export function AppNavigator() {
             Notifications: 'notifications',
             Auth: 'sign-in',
             Settings: 'settings',
+            EditProfile: 'profile/edit',
             Security: 'security',
             FAQ: 'faq',
             Privacy: 'privacy',
@@ -195,6 +197,11 @@ export function AppNavigator() {
               name="Notifications"
               component={NotificationsScreen}
               options={{ title: 'Community updates' }}
+            />
+            <Stack.Screen
+              name="EditProfile"
+              component={EditProfileScreen}
+              options={{ title: 'Edit profile' }}
             />
             <Stack.Screen
               name="Settings"
