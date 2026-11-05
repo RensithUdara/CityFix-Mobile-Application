@@ -32,6 +32,7 @@ yarn-error.*
 
 # local env files
 .env*.local
+.env
 .firebase-*.json
 firebase-debug.log*
 firestore-debug.log*
@@ -48,4 +49,3 @@ ui-debug.log*
 # Browser verification
 test-results/
 playwright-report/
-config.bat
