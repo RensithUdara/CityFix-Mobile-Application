@@ -49,3 +49,6 @@ ui-debug.log*
 # Browser verification
 test-results/
 playwright-report/
+.env.*
+.env.local
+.env.production
